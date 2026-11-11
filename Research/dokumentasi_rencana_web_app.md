@@ -301,7 +301,7 @@ Jangan mencampur listing berbeda. Jika sumber beberapa listing terlanjur berada 
 - Product Manifest menjadi referensi identitas listing dan snapshot, bukan bukti kebenaran klaim.
 - Skill 03/04 menyediakan status integritas dataset dan provenance; status tersebut tidak boleh diubah menjadi penilaian kualitas produk.
 - AI Mode menyediakan riset independen. Klaim seller, laporan pengguna, dokumen produsen, dan hasil uji harus tetap dibedakan.
-- NotebookLM hanya menggunakan Source ID dan Evidence ID yang sudah tersedia. ID yang tidak ada tidak boleh dibuat-buat.
+- NotebookLM mempertahankan upstream Source ID dan Evidence ID; ID upstream yang hilang tidak boleh dibuat-buat. ID untuk entitas sintesis baru (finding, solution, conflict, question) dibuat deterministik sesuai Canonical Data Contract §3.5.
 - Setiap finding dan solution wajib memiliki evidence_ids yang valid.
 - Bukti yang bertentangan harus dipertahankan sebagai conflict, bukan dipilih diam-diam.
 - Review asli tetap berada pada raw package. NotebookLM tidak boleh menulis ulang original_text atau membuat kutipan seolah berasal dari reviewer.
@@ -386,6 +386,7 @@ Jangan membuat implementasi backend dari contoh lama atau menebak field yang tid
 ### 7.4 Relasi dan validasi referensi
 
 - `product_identity.product_id` harus sama dengan Product Manifest.
+- `listing_identity_status` memeriksa kecocokan listing terhadap Manifest; `canonical_identity_status` memeriksa verifikasi identitas produk kanonis. Kedua status tidak boleh digabung.
 - `canonical_product_id` hanya diisi setelah verifikasi independen.
 - Setiap `evidence.source_id` harus merujuk ke salah satu objek pada `sources`.
 - Setiap `finding.evidence_ids`, `solution.evidence_ids`, dan referensi bukti pada `conflicts` harus merujuk ke objek pada `evidence`.
