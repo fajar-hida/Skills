@@ -327,7 +327,7 @@ Alur integrasi yang disarankan:
 Pertahankan namespace sumber sesuai asal data. Contoh:
 - SRC-SP-001 untuk sumber SidePanel.
 - SRC-AI-001 untuk sumber riset AI Mode.
-- EV-SP-001 untuk evidence yang berasal dari SidePanel.
+- EV-SP-000001 untuk evidence yang berasal dari SidePanel.
 - EV-AI-001 untuk evidence yang berasal dari AI Mode.
 
 Jangan menggunakan ulang ID yang sama untuk sumber berbeda. Jangan mengubah asal bukti hanya karena bukti tersebut dipindahkan ke NotebookLM.
