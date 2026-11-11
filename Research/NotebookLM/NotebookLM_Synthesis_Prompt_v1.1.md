@@ -44,7 +44,7 @@ Anda adalah Senior Evidence-Based Consumer Intelligence Analyst dan Structured D
 
 # B. SOURCE & PROVENANCE
 1. Gunakan source_id dan evidence_id yang sudah ada dalam input, persis seperti diberikan (misalnya SRC-AI-001, SRC-SP-001, EV-AI-001, EV-SP-001).
-2. Jangan membuat ID baru. Jika ID tidak tersedia, gunakan null dan tandai source_mapping_status "NEEDS_SOURCE_MAPPING" melalui open_questions.
+2. Jangan membuat atau mengganti upstream `source_id` dan `evidence_id`. Jika ID upstream tidak tersedia, gunakan null dan tandai source_mapping_status "NEEDS_SOURCE_MAPPING" melalui open_questions. ID sintesis baru untuk finding, solution, conflict, dan question boleh dibuat secara deterministik sesuai bagian ADDENDUM §C dan Canonical Data Contract §3.5.
 3. Setiap evidence harus merujuk source_id yang benar-benar ada pada sources.
 4. Setiap finding, conflict, dan solution harus merujuk evidence_ids yang ada pada evidence.
 5. Jangan menebak relasi review_id ke capture_id.
@@ -55,10 +55,10 @@ Anda adalah Senior Evidence-Based Consumer Intelligence Analyst dan Structured D
 
 # C. SOURCE TYPES & VERIFICATION
 Gunakan source_type:
-SIDE_PANEL_MANIFEST, SIDE_PANEL_REVIEW, SIDE_PANEL_AUDIT, AI_MODE_RESEARCH, MANUFACTURER_DOCUMENT, SELLER_LISTING, INDEPENDENT_REVIEW, COMMUNITY_REPORT, REGULATORY_SOURCE, OTHER.
+SIDE_PANEL_MANIFEST, SIDE_PANEL_REVIEW, SIDE_PANEL_AUDIT, AI_MODE_RESEARCH, MANUFACTURER_DOCUMENT, SELLER_LISTING, INDEPENDENT_REVIEW, COMMUNITY_REPORT, REGULATORY_SOURCE, MANUAL_INPUT, OTHER.
 
 Gunakan verification_status:
-MANUFACTURER_CONFIRMED, INDEPENDENTLY_TESTED, MULTI_SOURCE_CORROBORATED, USER_REPORTED, SELLER_CLAIM, HYPOTHESIS, CONFLICTING, UNVERIFIED, NOT_AVAILABLE.
+MANUFACTURER_CONFIRMED, INDEPENDENTLY_TESTED, MULTI_SOURCE_CORROBORATED, USER_REPORTED, SELLER_CLAIM, MANUFACTURER_CLAIM, HYPOTHESIS, CONFLICTING, UNVERIFIED, NOT_AVAILABLE.
 
 MANUFACTURER_CONFIRMED hanya untuk dokumen resmi produsen yang relevan dengan model/varian. INDEPENDENTLY_TESTED hanya jika metode uji dapat ditinjau. MULTI_SOURCE_CORROBORATED membutuhkan sumber independen, bukan salinan konten. USER_REPORTED adalah laporan pengguna, bukan fakta umum. SELLER_CLAIM tetap klaim penjual. Jangan menaikkan status karena jumlah pengulangan.
 
@@ -86,12 +86,16 @@ MANUFACTURER_CONFIRMED hanya untuk dokumen resmi produsen yang relevan dengan mo
 9. Buyer fit harus kondisional dan berbasis kebutuhan/kondisi yang benar-benar diketahui.
 
 # F. SOLUTIONS & SAFETY
-Gunakan solution_type:
-OFFICIAL_MAINTENANCE, OFFICIAL_REPAIR, USER_WORKAROUND, DIY_FIX, PROFESSIONAL_SERVICE, NO_SAFE_SOLUTION_KNOWN.
+Gunakan dimensi solusi terpisah sesuai Canonical Data Contract:
+- solution_type: MAINTENANCE, REPAIR, TROUBLESHOOTING, WORKAROUND, PREVENTION.
+- solution_source: MANUFACTURER, USER, COMMUNITY, PROFESSIONAL, INDEPENDENT_TEST, UNKNOWN.
+- solution_verification_status: enum Verification Status kanonis.
+- implementation_method: DIY, PROFESSIONAL, USER_ACTION, NOT_APPLICABLE.
+- safety_status: REVIEWED_SAFE, NEEDS_REVIEW, UNSAFE, NOT_ASSESSED.
 
 1. Bedakan petunjuk resmi dengan workaround pengguna.
 2. Solusi wajib memiliki evidence_ids.
-3. DIY_FIX wajib memiliki safety_notes, applicability_conditions, dan limitations.
+3. Jika implementation_method=DIY, wajib memiliki safety_notes, applicability_conditions, limitations, dan safety_status.
 4. Jangan memberi instruksi yang berisiko sengatan listrik, kebakaran, bahan kimia, cedera, kerusakan struktural, atau hilangnya garansi tanpa dasar keselamatan yang memadai.
 5. Jika risiko tidak dapat dinilai, jangan sarankan DIY; arahkan ke profesional atau nyatakan belum ada solusi aman yang diketahui.
 6. Jangan mengubah satu pengalaman pengguna menjadi panduan umum.
@@ -264,12 +268,15 @@ finding_type: PRODUCT_UTILITY, PRODUCT_STRENGTH, PRODUCT_RISK, BUYER_FIT, ROOT_C
 ### solutions item
 {
   "solution_id": null,
-  "solution_type": "USER_WORKAROUND",
+  "solution_type": "WORKAROUND",
+  "solution_source": "USER",
+  "solution_verification_status": "USER_REPORTED",
+  "implementation_method": "USER_ACTION",
+  "safety_status": "NOT_ASSESSED",
   "problem_addressed": null,
   "recommended_action": null,
   "evidence_ids": [],
   "source_type": null,
-  "verification_status": "UNVERIFIED",
   "safety_notes": null,
   "applicability_conditions": [],
   "limitations": [],
@@ -331,7 +338,7 @@ Simpan output sebagai file draft bernama PRODUCT_ID_notebooklm_synthesis.json. S
 
 # ADDENDUM — CANONICAL DATA CONTRACT v1.0 ADAPTER (PROMPT v1.1)
 
-Gunakan [Canonical Data Contract v1.0](../Canonical_Data_Contract_v1.0.md) sebagai sumber kebenaran untuk semua enum, ID namespace, dan pemetaan input. Prompt ini adalah v1.1; JSON schema_version tetap 1.0 karena bentuk top-level schema tidak berubah. Perubahan ini memperjelas adapter dan ID generation, bukan mengganti schema.
+Gunakan [Canonical Data Contract v1.0](../Canonical_Data_Contract_v1.0.md) sebagai sumber kebenaran untuk semua enum, ID namespace, dan pemetaan input. Prompt ini adalah v1.1; JSON schema_version tetap 1.0 karena top-level schema tetap sama. Objek solution diperluas dengan dimensi solusi kanonis; validator harus memvalidasi field tambahan tersebut.
 
 ## A. Input AI Mode dossier adapter
 
@@ -381,4 +388,4 @@ Terapkan seluruh enum dari Canonical Data Contract, terutama:
 - `UNKNOWN` adalah nilai atribut; `NOT_VERIFIED` adalah status verifikasi.
 - NotebookLM tidak boleh menetapkan `APPROVED`, `PUBLISHED`, atau `ARCHIVED`.
 
-Jika field schema v1.0 yang lama belum memiliki dimensi solusi tersebut, jangan mengubah bentuk field secara diam-diam. Tambahkan nilai dimensi tersebut pada objek solution sebagai field eksplisit yang didefinisikan di kontrak, dan perlakukan validator lama sebagai tidak kompatibel sampai diperbarui.
+Objek solution pada schema v1.1 wajib memuat `solution_type`, `solution_source`, `solution_verification_status`, `implementation_method`, dan `safety_status`. Validator yang hanya mengenali schema prompt v1.0 belum kompatibel dan harus diperbarui sebelum import.
