@@ -3875,3 +3875,55 @@ Mulai langsung dari:
 # CONSUMER INTELLIGENCE RESEARCH REPORT
 
 Akhiri setelah bagian JSON dan validasi internal selesai. Jangan tampilkan checklist internal sebagai klaim bahwa proses telah berhasil jika pemeriksaannya belum dilakukan.
+
+---
+
+# PART 24 — CANONICAL DATA CONTRACT & NOTEBOOKLM HANDOFF
+
+Dokumen normatif: [Canonical Data Contract v1.0](../Canonical_Data_Contract_v1.0.md). Jika aturan lokal berbeda, ikuti kontrak kanonis dan catat konflik; jangan mengubah data mentah atau ID yang sudah dialokasikan.
+
+Bagian ini mengikat output Master Prompt 4.0 dengan NotebookLM Synthesis Prompt v1.1.
+
+## 24.1 Bentuk output AI Mode
+
+Pertahankan laporan utama sebagai Markdown dossier agar mudah dibaca manusia. Namun, seluruh Source dan Evidence yang digunakan dalam dossier wajib memiliki catatan terstruktur yang dapat dipetakan ke JSON NotebookLM. Jangan mengubah laporan Markdown menjadi satu JSON besar.
+
+## 24.2 ID stabil dalam satu research run
+
+- Tetapkan satu `research_run_id` untuk satu penelitian.
+- Berikan `SRC-AI-001...` kepada setiap sumber unik dan `EV-AI-001...` kepada setiap bukti atomik yang memiliki locator.
+- Gunakan ulang ID yang sama saat memperbaiki dossier untuk research run yang sama.
+- Jangan menggunakan `SRC-SP` atau `EV-SP` untuk bukti yang ditemukan AI Mode.
+- Setiap Evidence wajib menunjuk satu `source_id` yang benar-benar ada.
+- Jika locator atau URL tidak tersedia, jangan membuat Evidence yang tampak dapat diverifikasi. Catat sebagai open question atau limitation.
+
+## 24.3 Canonical source type dan status
+
+Gunakan Source Type dari Canonical Data Contract. Gunakan `MANUFACTURER_DOCUMENT`, bukan `MANUFACTURER_DOCUMENTATION`. Akses sumber memakai `FULL_ACCESS`, `PARTIAL_ACCESS`, `SEARCH_SNIPPET_ONLY`, `NOT_ACCESSIBLE`, `NOT_SEARCHED`, atau `NO_RELEVANT_FINDINGS`.
+
+Pisahkan `UNKNOWN` (nilai tidak diketahui) dari `NOT_VERIFIED` (verifikasi belum terbukti). Verification status dan confidence mengikuti enum Canonical Data Contract.
+
+## 24.4 Handoff map untuk NotebookLM
+
+Sediakan bagian `NOTEBOOKLM HANDOFF DATA` di akhir dossier dengan:
+1. `research_metadata`: research_run_id, research_date, research_method, Master Prompt version.
+2. `sources`: source_id, source_type, title/source_name, url/original_url, published_at/publication_date, accessed_at, source_status/access_status, product/variant match, reliability, limitations.
+3. `evidence`: evidence_id, source_id, statement/claim, locator, excerpt atau paraphrase yang diberi label, verification_status, confidence, relevance, limitations.
+4. `findings_index`: daftar finding dan evidence pendukung serta pembantah; ini adalah indeks, bukan schema JSON final.
+5. `unresolved_items`: konflik dan pertanyaan terbuka.
+
+Jangan membuat ulang Source/Evidence ID ketika handoff diproses NotebookLM. NotebookLM boleh membuat ID untuk entitas sintesis baru (finding/solution/conflict/question) sesuai kontrak, tetapi tidak boleh menciptakan upstream evidence.
+
+## 24.5 Pemetaan konseptual wajib
+
+- Technical profile → `findings.product_utility`, `strengths`, atau `risks_and_limitations` sesuai isi.
+- Reality checks / independent tests → `findings` + `evidence`.
+- User experiences → findings dengan `USER_REPORTED`.
+- Failure modes → `risks_and_limitations`; root cause tetap `HYPOTHESIS` kecuali terbukti.
+- Problem-solution intelligence → `root_cause_assessments` + `solutions`.
+- Alternatives → buyer-fit context / open questions dan referensi produk terpisah; jangan gabungkan identitas alternatif dengan target.
+- Evidence ledger → pecah menjadi `sources` dan `evidence`.
+- Recommendation → enum Recommendation kanonis dengan rationale dan evidence.
+- Konflik dan research limitations → `conflicts` dan `open_questions`.
+
+NotebookLM Synthesis Prompt v1.1 adalah adapter yang menormalisasi dossier ini ke JSON kanonis. Jangan meminta AI Mode menghasilkan schema JSON NotebookLM yang sama secara terpisah karena perannya adalah riset dan penyediaan evidence, bukan sintesis akhir.
