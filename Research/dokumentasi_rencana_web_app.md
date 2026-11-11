@@ -209,7 +209,7 @@ Gunakan namespace yang konsisten:
 - Source ID AI Mode: SRC-AI-001
 - Evidence ID AI Mode: EV-AI-001
 - Source ID SidePanel: SRC-SP-001
-- Evidence ID SidePanel: EV-SP-001
+- Evidence ID SidePanel: EV-SP-000001
 
 ID harus unik dalam ruang lingkup sistem. Jangan menggunakan dua pola ID berbeda untuk jenis sumber yang sama. Simpan URL atau referensi sumber, judul, platform, tanggal akses, tanggal publikasi jika diketahui, tipe sumber, dan catatan akses.
 
