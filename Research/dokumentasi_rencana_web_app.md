@@ -283,7 +283,7 @@ Banyak review yang menyalin pola kalimat atau berasal dari konteks yang sama tid
 
 NotebookLM menghasilkan **draft sintesis JSON** yang mengikuti kontrak Web App. Prompt operasional lengkap dan schema kanonis dipisahkan ke dokumen khusus agar dapat disalin ke NotebookLM tanpa mengambil instruksi yang bersifat dokumentasi aplikasi.
 
-**Prompt kanonis:** [NotebookLM Synthesis Prompt v1.0](NotebookLM/NotebookLM_Synthesis_Prompt_v1.0.md)
+**Prompt kanonis:** [NotebookLM Synthesis Prompt v1.1](NotebookLM/NotebookLM_Synthesis_Prompt_v1.1.md)
 
 ### 6.1 Input wajib
 
@@ -371,7 +371,7 @@ Sebelum import:
 
 ### 7.3 Kontrak JSON pertukaran — versi 1.0
 
-Schema JSON kanonis untuk output NotebookLM ditetapkan dalam dokumen [NotebookLM Synthesis Prompt v1.0](NotebookLM/NotebookLM_Synthesis_Prompt_v1.0.md), bukan pada contoh JSON parsial di blueprint ini.
+Schema JSON kanonis untuk output NotebookLM ditetapkan dalam dokumen [NotebookLM Synthesis Prompt v1.1](NotebookLM/NotebookLM_Synthesis_Prompt_v1.1.md), bukan pada contoh JSON parsial di blueprint ini.
 
 Kontrak tersebut adalah sumber kebenaran untuk:
 - nama dan struktur seluruh key;
@@ -737,3 +737,35 @@ Konsep berikut tetap dipertahankan karena masih relevan:
 - Gradio sebagai jalur prototipe.
 
 Perubahan terpenting dari versi 4.0 adalah bahwa **bukti, identitas listing, provenance, audit dataset, dan validasi publikasi kini menjadi fondasi sistem**, bukan sekadar tambahan setelah sintesis. Dengan demikian, Web App tidak hanya menyajikan ringkasan AI, tetapi dapat menjelaskan dari mana setiap kesimpulan berasal, seberapa terbatas bukti yang tersedia, dan kapan sistem sebaiknya tidak memberikan rekomendasi.
+
+---
+
+## 17. Canonical Data Contract v1.0 — Normative Cross-Pipeline Standard
+
+Dokumen normatif: [Canonical Data Contract v1.0](Canonical_Data_Contract_v1.0.md).
+
+### 17.1 Source of truth
+Kontrak kanonis menetapkan identity model, Source/Evidence ID namespace, deterministic SidePanel evidence mapping, source type, verification, audit, export readiness, coverage, solution taxonomy, recommendation, dan publication status. Prompt/skill tidak boleh mendefinisikan enum yang bertentangan. Bila ada konflik, pertahankan raw value dan tandai untuk review.
+
+### 17.2 AI Mode adapter
+Master Prompt 4.0 tetap menghasilkan Markdown dossier untuk riset manusia, disertai `NOTEBOOKLM HANDOFF DATA` yang memuat research metadata, source registry, evidence registry, findings index, dan unresolved items. NotebookLM Prompt v1.1 mengubah dossier tersebut menjadi JSON canonical. Jangan mengharuskan AI Mode menghasilkan schema NotebookLM secara langsung.
+
+Pemetaan section Master Prompt ke JSON dan alias field diatur pada Canonical Data Contract §6 dan NotebookLM Prompt v1.1.
+
+### 17.3 SidePanel Evidence Registry
+Skill 04 wajib mengeluarkan `evidence_mapping` pada Export Package Summary dan NotebookLM Raw Text. Mapping menghubungkan `EV-SP-000001` ke source_id, product_id, collection_id, review_id, serta page/position locator. Header CSV tidak berubah. Package tanpa mapping belum memiliki full evidence traceability dan harus ditandai PARTIAL_EXPORT atau diregenerasi sesuai kontrak.
+
+### 17.4 Status dimensions
+Simpan terpisah:
+- Dataset Audit Status: PASS, PASS_WITH_WARNINGS, NEEDS_REVIEW, FAIL; AUDIT_NOT_PROVIDED hanya untuk input yang tidak menyertakan audit.
+- Skill 03 Handoff Status: READY_FOR_EXPORT, READY_WITH_WARNINGS, NOT_READY.
+- Export Readiness: READY_FOR_EXPORT, READY_WITH_WARNINGS, NOT_READY, PARTIAL_EXPORT.
+- Publication Status: DRAFT, VALIDATION_FAILED, NEEDS_HUMAN_REVIEW, BLOCKED_IDENTITY, APPROVED, PUBLISHED, ARCHIVED.
+
+NotebookLM tidak memiliki kewenangan menyetujui atau memublikasikan. Hanya editorial workflow Web App dapat menetapkan APPROVED/PUBLISHED/ARCHIVED.
+
+### 17.5 Solution model
+Backend menyimpan solution_type, solution_source, solution_verification_status, dan safety_status secara terpisah sesuai Canonical Data Contract §5.10. Jangan memetakan workaround pengguna menjadi solusi resmi produsen.
+
+### 17.6 Migration and validation
+Validator wajib memeriksa enum membership, listing identity, canonical identity status, source/evidence referential integrity, deterministic mapping uniqueness, evidence locator, solution safety, dan publication gate. Jangan mengubah raw data atau renumber ID saat migrasi.
