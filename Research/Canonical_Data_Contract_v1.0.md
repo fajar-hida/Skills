@@ -222,6 +222,14 @@ Do not combine solution authority, action type, verification, and safety into on
 - `WORKAROUND`
 - `PREVENTION`
 
+**implementation_method**
+- `DIY`
+- `PROFESSIONAL`
+- `USER_ACTION`
+- `NOT_APPLICABLE`
+
+`DIY_FIX` pada prompt lama bukan lagi nilai solution_type. Petakan menjadi solution_type sesuai tindakan aktual, lalu set implementation_method=`DIY`. `BASIC_TROUBLESHOOTING` dipetakan ke solution_type=`TROUBLESHOOTING`; `TEMPORARY_WORKAROUND` ke `WORKAROUND`; `MAINTENANCE_PROCEDURE` ke `MAINTENANCE`; `REPAIR_PROCEDURE` ke `REPAIR`.
+
 **solution_source**
 - `MANUFACTURER`
 - `USER`
