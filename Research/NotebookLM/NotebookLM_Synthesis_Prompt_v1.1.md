@@ -176,7 +176,8 @@ Pastikan JSON valid; semua referensi ID valid; identitas cocok dengan Manifest; 
   "dataset_audit": {
     "audit_status": "AUDIT_NOT_PROVIDED",
     "export_readiness": "PARTIAL_EXPORT",
-    "identity_status": "NOT_VERIFIED",
+    "listing_identity_status": "NOT_VERIFIED",
+     "canonical_identity_status": "NOT_VERIFIED",
     "provenance_status": "NOT_PROVIDED",
     "coverage_status": "NOT_ASSESSABLE",
     "collection_ids": [],
