@@ -398,3 +398,17 @@ https://github.com/fajar-hida/Skills/tree/main/Research/SidePanel
 
 Master Prompt 4.0:
 https://raw.githubusercontent.com/fajar-hida/Skills/main/Research/AI%20Mode/Master_Prompt.md
+
+---
+
+## Canonical Data Contract v1.0
+
+Kontrak lintas pipeline sekarang ditetapkan dalam [Canonical Data Contract v1.0](../Canonical_Data_Contract_v1.0.md). Dokumen tersebut menjadi acuan normatif untuk identitas, namespace Source/Evidence ID, status, enum, pemetaan AI Mode–NotebookLM, dan kompatibilitas.
+
+Perubahan penting:
+- Header Master CSV tetap 23 kolom dan tidak berubah.
+- Skill 02 hanya mengekstrak review; Skill 04 membuat `evidence_mapping` di metadata ekspor.
+- Evidence ID SidePanel menggunakan `EV-SP-000001` dan seterusnya, dengan mapping stabil ke `source_id`, `review_id`, `collection_id`, `product_id`, serta locator halaman/posisi.
+- Handoff Skill 03 tetap tiga status. `PARTIAL_EXPORT` hanya status Exporter.
+- Audit Status, Export Readiness, dan Publication Status adalah dimensi yang berbeda.
+- NotebookLM menerima AI Mode dossier dan SidePanel export package melalui adapter prompt v1.1.
