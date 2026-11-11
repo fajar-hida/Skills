@@ -544,3 +544,21 @@ Aturan:
 - Jangan mengubah Product Manifest untuk menyelesaikan konflik.
 - Jangan mengubah skema CSV kanonis dalam proses audit.
 - Jangan menyatakan dataset siap ekspor tanpa menyebut batasan dan konflik yang belum terselesaikan.
+
+---
+
+## Canonical Data Contract Alignment
+
+Dokumen normatif: [Canonical Data Contract v1.0](../Canonical_Data_Contract_v1.0.md). Jika aturan lokal berbeda, ikuti kontrak kanonis dan catat konflik; jangan mengubah data mentah atau ID yang sudah dialokasikan.
+
+### Status boundary
+Audit Status hanya menggunakan `PASS`, `PASS_WITH_WARNINGS`, `NEEDS_REVIEW`, atau `FAIL`. `AUDIT_NOT_PROVIDED` adalah status downstream ketika laporan audit tidak disertakan, bukan hasil audit yang dikeluarkan Auditor.
+
+Handoff Status Skill 03 tetap hanya:
+- `READY_FOR_EXPORT`
+- `READY_WITH_WARNINGS`
+- `NOT_READY`
+
+Skill 03 tidak mengeluarkan `PARTIAL_EXPORT`. Status tersebut hanya dapat ditetapkan Skill 04 ketika proses ekspor menghasilkan subset yang secara eksplisit dibatasi. Jangan menyamakan Audit Status, Handoff Status, Export Readiness, atau Publication Status.
+
+Severity, coverage, extraction, duplicate, identity, provenance, dan verification values mengikuti enum Canonical Data Contract. Nilai sumber yang tidak dikenal harus dipertahankan dalam catatan konflik/unknown, bukan dipaksa ke enum yang salah.
