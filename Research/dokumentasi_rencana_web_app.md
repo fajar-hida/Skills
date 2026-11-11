@@ -311,7 +311,7 @@ Jangan mencampur listing berbeda. Jika sumber beberapa listing terlanjur berada 
 
 ### 6.3 Output yang diharapkan
 
-NotebookLM mengeluarkan satu objek JSON dengan schema_version 1.0. Objek mencakup:
+NotebookLM mengeluarkan satu objek JSON dengan schema_version 1.1. Objek mencakup:
 
 - research_metadata dan input_inventory;
 - product_identity dan listing_snapshot;
