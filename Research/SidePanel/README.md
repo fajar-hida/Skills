@@ -401,6 +401,10 @@ https://raw.githubusercontent.com/fajar-hida/Skills/main/Research/AI%20Mode/Mast
 
 ---
 
+## Panduan Workflow End-to-End
+
+Untuk petunjuk operasional lengkap dari Product Profiler sampai JSON sintesis NotebookLM, lihat [Panduan Workflow Operasional v1.0](../Panduan_Workflow_Operasional_v1.0.md). Dokumen tersebut menjelaskan persiapan, urutan eksekusi, perintah siap salin, quality gate, Evidence Mapping, dan handoff ke Web App.
+
 ## Canonical Data Contract v1.0
 
 Kontrak lintas pipeline sekarang ditetapkan dalam [Canonical Data Contract v1.0](../Canonical_Data_Contract_v1.0.md). Dokumen tersebut menjadi acuan normatif untuk identitas, namespace Source/Evidence ID, status, enum, pemetaan AI Mode–NotebookLM, dan kompatibilitas.
