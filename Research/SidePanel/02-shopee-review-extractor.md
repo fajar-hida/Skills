@@ -382,3 +382,11 @@ Sebelum selesai, pastikan:
 - Jangan mengubah teks asli reviewer.
 - Jangan mencampur data antar-listing atau antarvarian yang tidak dapat dipastikan.
 - Jangan menambahkan field baru ke CSV kanonis tanpa memperbarui skill downstream dan versi kontrak data.
+
+---
+
+## Canonical Data Contract Reference
+
+Dokumen normatif: [Canonical Data Contract v1.0](../Canonical_Data_Contract_v1.0.md). Jika aturan lokal berbeda, ikuti kontrak kanonis dan catat konflik; jangan mengubah data mentah atau ID yang sudah dialokasikan.
+
+Pertahankan header CSV kanonis persis seperti yang telah ditetapkan. Extractor tidak membuat `evidence_id`; Skill 04 Exporter membuat metadata `evidence_mapping` deterministik dari `review_id`, `collection_id`, `source_id`, `source_page`, dan `source_position`. Jangan mengubah `original_text`, membuat ID dari data yang tidak tersedia, atau mengklaim Evidence ID sebagai validasi keaslian review.
