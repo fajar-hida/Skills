@@ -316,3 +316,11 @@ Jika ada pemeriksaan yang tidak dapat dipenuhi, jelaskan keterbatasannya. Jangan
 - Jangan mengklaim telah mengumpulkan, memeriksa, atau mengaudit ulasan.
 - Jangan mengubah struktur Product Manifest untuk satu produk tertentu.
 - Jangan menambahkan penjelasan atau field baru ke YAML yang mengubah kontrak data tanpa memperbarui versi Manifest.
+
+---
+
+## Canonical Data Contract Reference
+
+Dokumen normatif: [Canonical Data Contract v1.0](../Canonical_Data_Contract_v1.0.md). Jika aturan lokal berbeda, ikuti kontrak kanonis dan catat konflik; jangan mengubah data mentah atau ID yang sudah dialokasikan.
+
+Product Manifest tetap merupakan snapshot satu listing. Pertahankan `product_id`, `research_key`, `product_url`, dan seluruh nilai snapshot. Jangan menetapkan `canonical_product_id` pada tahap profiling. Nilai kanonis hanya boleh diisi setelah proses identity resolution independen mencapai `VERIFIED`.
