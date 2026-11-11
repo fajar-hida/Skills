@@ -2790,13 +2790,13 @@ Contoh Source Record:
 ```yaml
 source_id: SRC-AI-001
 source_name: "Example Source"
-source_type: MANUFACTURER_DOCUMENTATION
+source_type: MANUFACTURER_DOCUMENT
 publisher: "Example Publisher"
 original_url: "https://example.com"
 publication_date: UNKNOWN
 research_date: "YYYY-MM-DD"
-access_status: FULL_PAGE
-product_match: EXACT_MATCH
+access_status: FULL_ACCESS
+product_match: EXACT_PRODUCT_MATCH
 source_reliability: HIGH
 evidence_relevance: HIGH
 duplicate_status: ORIGINAL
@@ -2888,13 +2888,17 @@ Contoh Solution Record:
 solution_id: SOL-AI-001
 related_problem_id: PRB-AI-001
 
-solution_type: MANUFACTURER_RECOMMENDED
+solution_type: MAINTENANCE
+solution_source: MANUFACTURER
+solution_verification_status: MANUFACTURER_CONFIRMED
+implementation_method: PROFESSIONAL
+safety_status: NOT_ASSESSED
 
 solution_description: "Verified solution description."
 
 compatibility: UNKNOWN
 safety_risk: UNKNOWN
-verification_status: NOT VERIFIED
+verification_status: UNVERIFIED
 
 evidence_ids:
   - EV-AI-001
@@ -2914,7 +2918,7 @@ applicability:
   model: UNKNOWN
   variant: UNKNOWN
 
-fix_classification: BASIC_TROUBLESHOOTING
+fix_classification: TROUBLESHOOTING
 fix_status: STATUS_UNKNOWN
 
 preconditions: []
@@ -3927,3 +3931,14 @@ Jangan membuat ulang Source/Evidence ID ketika handoff diproses NotebookLM. Note
 - Konflik dan research limitations → `conflicts` dan `open_questions`.
 
 NotebookLM Synthesis Prompt v1.1 adalah adapter yang menormalisasi dossier ini ke JSON kanonis. Jangan meminta AI Mode menghasilkan schema JSON NotebookLM yang sama secara terpisah karena perannya adalah riset dan penyediaan evidence, bukan sintesis akhir.
+
+### 24.6 Legacy label normalization
+
+Jika template lama atau sumber yang ditempel masih menggunakan label berikut, normalisasikan hanya pada data turunan NotebookLM; pertahankan nilai mentah pada dossier dan catat alias yang dipakai:
+- `MANUFACTURER_DOCUMENTATION` → `MANUFACTURER_DOCUMENT`.
+- `FULL_PAGE` → `FULL_ACCESS`; `SEARCH-SNIPPET ONLY` → `SEARCH_SNIPPET_ONLY`; `PARTIAL ACCESS` → `PARTIAL_ACCESS`; `NOT ACCESSIBLE` → `NOT_ACCESSIBLE`.
+- `EXACT_MATCH` → `EXACT_PRODUCT_MATCH` hanya jika atribut produk/model benar-benar cocok; selain itu gunakan status matching yang sesuai bukti.
+- `NOT VERIFIED` → `UNVERIFIED` untuk verification_status, bukan untuk nilai atribut.
+- `MANUFACTURER_RECOMMENDED` bukan solution_type. Petakan tindakan ke MAINTENANCE/REPAIR/TROUBLESHOOTING/WORKAROUND/PREVENTION dan set solution_source=MANUFACTURER hanya jika berasal dari panduan produsen.
+- `BASIC_TROUBLESHOOTING` → solution_type=`TROUBLESHOOTING`; `DIY` dicatat terpisah pada implementation_method.
+- `VERIFIED_FACT` adalah klasifikasi pernyataan dalam dossier, bukan verification_status. Turunkan status verifikasi dari asal dan kekuatan bukti, jangan menyalin label tanpa pemeriksaan.
