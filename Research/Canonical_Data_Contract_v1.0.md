@@ -59,6 +59,33 @@ Sumber yang hanya cocok pada keluarga/kemiripan produk tidak boleh diperlakukan 
 
 Hanya status `VERIFIED` yang mengizinkan pengisian `canonical_product_id`. Status lain wajib menggunakan null untuk ID kanonis.
 
+### 2.4 Listing-to-Manifest identity status
+
+Untuk membandingkan input listing/review dengan Product Manifest gunakan:
+- `MATCH`
+- `PARTIAL_MATCH`
+- `CONFLICT`
+- `NOT_VERIFIED`
+- `NOT_APPLICABLE`
+
+Status ini bukan status canonical identity. Dalam JSON NotebookLM gunakan nama field `listing_identity_status`; jangan memakai field generik `identity_status` untuk dua makna berbeda.
+
+### 2.5 Provenance status
+
+- `COMPLETE`
+- `PARTIAL`
+- `CONFLICT`
+- `NOT_PROVIDED`
+- `NOT_ASSESSABLE`
+
+### 2.6 Evidence mapping status
+
+- `AVAILABLE`
+- `PARTIAL`
+- `UNAVAILABLE`
+
+`PARTIAL` berarti bukti dapat ditelusuri ke record tetapi satu atau lebih locator/content fields tidak lengkap.
+
 ## 3. Provenance dan ID namespace
 
 ### 3.1 Source ID
