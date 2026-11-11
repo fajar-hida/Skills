@@ -645,3 +645,37 @@ Jika satu atau lebih pemeriksaan gagal, laporkan dampaknya dan turunkan status k
 - Jangan melakukan analisis sentimen agregat, root cause analysis, prediksi daya tahan, diagnosis kerusakan, DIY fix, perbandingan produk, atau rekomendasi pembelian. Itu merupakan tahap riset dan sintesis terpisah.
 - Jangan menambahkan kolom baru ke Master CSV tanpa memperbarui kontrak data dan skill downstream.
 - Jangan mengklaim file telah dibuat atau disimpan jika tindakan tersebut tidak benar-benar dilakukan.
+
+---
+
+## Canonical Data Contract and Evidence Mapping v1.0
+
+Dokumen normatif: [Canonical Data Contract v1.0](../Canonical_Data_Contract_v1.0.md). Jika aturan lokal berbeda, ikuti kontrak kanonis dan catat konflik; jangan mengubah data mentah atau ID yang sudah dialokasikan.
+
+### Mandatory evidence_mapping output
+
+Exporter WAJIB menghasilkan `evidence_mapping_version: "1.0"` dan array `evidence_mapping` pada:
+1. Export Package Summary; dan
+2. NotebookLM Raw Text.
+
+Buat satu mapping untuk setiap record review yang diekspor dan memiliki `review_id` stabil. Gunakan aturan alokasi deterministik pada §3.3 Canonical Data Contract. Field minimum setiap item:
+- `evidence_id` (`EV-SP-000001` dst.);
+- `source_id` yang berasal dari provenance register;
+- `evidence_origin: "SIDEPANEL_REVIEW"`;
+- `product_id`;
+- `collection_id`;
+- `review_id`;
+- `locator.source_page`;
+- `locator.source_position`;
+- `evidence_status` (`AVAILABLE` atau `PARTIAL`).
+
+Jangan menambah kolom pada Master CSV. Jangan membuat mapping bila review_id tidak stabil; masukkan ke mapping exceptions. Evidence ID adalah pointer ke record mentah dan bukan penilaian autentisitas atau kualitas review. Saat ekspor ulang package yang sama, pertahankan Evidence ID. Package lama tanpa mapping harus ditandai belum memiliki full evidence traceability sampai mapping dibuat dan diregistrasikan.
+
+### Export readiness versus audit handoff
+
+- Handoff Skill 03 `READY_FOR_EXPORT` → Exporter dapat menghasilkan `READY_FOR_EXPORT` jika semua pemeriksaan ekspor lulus.
+- Handoff Skill 03 `READY_WITH_WARNINGS` → Exporter menghasilkan `READY_WITH_WARNINGS` jika seluruh data yang dibutuhkan tetap dapat diekspor dengan caveat.
+- Handoff Skill 03 `NOT_READY` → Exporter tidak boleh menyatakan full export siap. Jika kebijakan mengizinkan subset yang aman dan jelas, hasilnya `PARTIAL_EXPORT`; jika tidak, `NOT_READY`.
+- `PARTIAL_EXPORT` hanya milik Export Readiness, bukan Audit Status atau Handoff Status.
+
+Gunakan enum dan solution taxonomy dari kontrak kanonis. Jangan menggabungkan solusi resmi, workaround pengguna, status verifikasi, dan status keselamatan menjadi satu label.
