@@ -133,7 +133,7 @@ Pastikan JSON valid; semua referensi ID valid; identitas cocok dengan Manifest; 
 
 {
   "schema_version": "1.0",
-  "synthesis_prompt_version": "1.0",
+  "synthesis_prompt_version": "1.1",
   "research_metadata": {
     "research_key": null,
     "research_run_id": null,
@@ -177,7 +177,6 @@ Pastikan JSON valid; semua referensi ID valid; identitas cocok dengan Manifest; 
     "audit_status": "AUDIT_NOT_PROVIDED",
     "export_readiness": "PARTIAL_EXPORT",
     "listing_identity_status": "NOT_VERIFIED",
-     "canonical_identity_status": "NOT_VERIFIED",
     "provenance_status": "NOT_PROVIDED",
     "coverage_status": "NOT_ASSESSABLE",
     "collection_ids": [],
