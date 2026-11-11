@@ -281,59 +281,63 @@ Banyak review yang menyalin pola kalimat atau berasal dari konteks yang sama tid
 
 ## 6. NOTEBOOKLM — PROMPT SINTESIS TERKONTROL
 
-Gunakan prompt berikut setelah memasukkan sumber riset dan paket ekspor Skill 04 ke NotebookLM. Output adalah data sintesis untuk validasi, bukan publikasi otomatis.
+NotebookLM menghasilkan **draft sintesis JSON** yang mengikuti kontrak Web App. Prompt operasional lengkap dan schema kanonis dipisahkan ke dokumen khusus agar dapat disalin ke NotebookLM tanpa mengambil instruksi yang bersifat dokumentasi aplikasi.
 
-### 6.1 Master instruction
+**Prompt kanonis:** [NotebookLM Synthesis Prompt v1.0](NotebookLM/NotebookLM_Synthesis_Prompt_v1.0.md)
 
-    # ROLE
-    Anda adalah Evidence-Based Consumer Intelligence Analyst dan Structured Data Synthesizer.
+### 6.1 Input wajib
 
-    # OBJECTIVE
-    Sintesis seluruh sumber yang tersedia untuk satu listing/produk. Hasil harus membantu keputusan pembelian secara seimbang, transparan, dan dapat ditelusuri.
+Untuk satu proses sintesis satu listing, masukkan:
 
-    # IDENTITY RULES
-    1. Ikuti product_id dari Product Manifest sebagai identitas listing.
-    2. Jangan menyamakan product_id dengan canonical_product_id.
-    3. Jangan membuat canonical_product_id tanpa bukti identitas lintas listing.
-    4. Jangan menggabungkan listing atau varian yang tidak terbukti sama.
-    5. Tandai konflik identitas dan hentikan klaim lintas sumber yang terdampak.
+1. Product Manifest v2.0 dari Skill 01.
+2. Paket ekspor Skill 04: Master CSV, NotebookLM Raw Text, Export Package Summary, Provenance Register, Audit and Handoff Status, Coverage and Limitations, dan Handoff Note jika tersedia.
+3. Hasil riset Google AI Mode dengan Master Prompt 4.0.
+4. Dokumen resmi produsen, manual, datasheet, pengujian independen, atau sumber pendukung lain yang benar-benar digunakan.
 
-    # EVIDENCE RULES
-    1. Jangan mengarang fakta, kutipan, angka, tanggal, URL, sumber, ID, atau hasil pengujian.
-    2. Setiap finding harus mencantumkan evidence_ids dan source_ids yang mendukungnya.
-    3. Bedakan fakta produsen, klaim penjual, pengalaman pengguna, hasil uji, dan hipotesis.
-    4. Pertahankan bukti yang bertentangan; jangan memilih hanya bukti yang mendukung satu kesimpulan.
-    5. Jika informasi tidak tersedia, isi status NOT_AVAILABLE dan jelaskan keterbatasannya.
-    6. Jangan menyatakan sampel review sebagai keseluruhan ulasan listing.
-    7. Jangan mengubah atau meringkas kutipan menjadi kutipan verbatim.
+Jangan mencampur listing berbeda. Jika sumber beberapa listing terlanjur berada dalam notebook yang sama, NotebookLM harus melaporkan konflik identitas dan tidak menyintesisnya sebagai satu produk.
 
-    # ANALYSIS RULES
-    1. Pisahkan masalah produk dari pengiriman, layanan toko, dan kesalahan pemesanan.
-    2. Jelaskan manfaat dan risiko dengan konteks penggunaan.
-    3. Root cause hanya boleh disebut terkonfirmasi jika sumber yang layak memang mengonfirmasinya; selain itu beri label HYPOTHESIS.
-    4. Jangan membuat durability forecast bulan 1/bulan 3 tanpa data longitudinal atau uji yang mendukung.
-    5. Jangan menyebut produk "dilarang dibeli"; jelaskan buyer mismatch dan kondisi yang membuat produk kurang sesuai.
-    6. Solusi DIY hanya boleh disarankan jika ada dasar bukti, risiko, batas penerapan, dan catatan keselamatan.
-    7. Jangan menyatakan aksesori wajib dibeli jika hanya rekomendasi komersial.
-    8. Jangan membuat expert_score atau match_score tanpa metodologi yang disetujui.
+### 6.2 Aturan proses
 
-    # OUTPUT
-    Hasilkan satu objek JSON valid sesuai schema versi yang diminta.
-    Gunakan null atau array kosong jika tidak ada data, disertai status yang sesuai.
-    Jangan menambahkan data yang tidak tersedia dalam sumber.
-    Sertakan daftar konflik, keterbatasan, dan pertanyaan yang masih belum terjawab.
-    Output ini wajib melewati validasi otomatis dan pemeriksaan manusia sebelum dipublikasikan.
+- Product Manifest menjadi referensi identitas listing dan snapshot, bukan bukti kebenaran klaim.
+- Skill 03/04 menyediakan status integritas dataset dan provenance; status tersebut tidak boleh diubah menjadi penilaian kualitas produk.
+- AI Mode menyediakan riset independen. Klaim seller, laporan pengguna, dokumen produsen, dan hasil uji harus tetap dibedakan.
+- NotebookLM hanya menggunakan Source ID dan Evidence ID yang sudah tersedia. ID yang tidak ada tidak boleh dibuat-buat.
+- Setiap finding dan solution wajib memiliki evidence_ids yang valid.
+- Bukti yang bertentangan harus dipertahankan sebagai conflict, bukan dipilih diam-diam.
+- Review asli tetap berada pada raw package. NotebookLM tidak boleh menulis ulang original_text atau membuat kutipan seolah berasal dari reviewer.
+- Output tidak boleh memuat expert_score, match_score, persentase risiko, durability forecast, atau klaim kuantitatif tanpa metodologi yang disetujui.
+- Solusi DIY harus memiliki bukti, kondisi penerapan, batas, dan catatan keselamatan. Jika tidak aman/tidak cukup bukti, jangan merekomendasikannya.
+- NotebookLM hanya boleh menghasilkan publication_status draft/review/blocking. Ia tidak boleh menetapkan APPROVED atau PUBLISHED.
 
-### 6.2 Aturan penggunaan NotebookLM
+### 6.3 Output yang diharapkan
 
-- Masukkan Product Manifest dan seluruh paket ekspor listing yang sama.
-- Masukkan sumber AI Mode dengan Source ID yang konsisten.
-- Jangan mencampur sumber dari listing lain tanpa pemetaan identitas yang eksplisit.
-- Minta NotebookLM mengembalikan Evidence ID/Source ID yang sudah diberikan; jangan biarkan model membuat referensi palsu.
-- Jika NotebookLM tidak dapat menghubungkan klaim dengan lokasi sumber, tandai sebagai NEEDS_SOURCE_MAPPING.
-- Simpan prompt version, model/tool context jika tersedia, waktu sintesis, dan daftar input.
+NotebookLM mengeluarkan satu objek JSON dengan schema_version 1.0. Objek mencakup:
 
----
+- research_metadata dan input_inventory;
+- product_identity dan listing_snapshot;
+- dataset_audit;
+- sources dan evidence;
+- findings (product_utility, strengths, risks_and_limitations, buyer_fit, root_cause_assessments, verified_wins);
+- solutions;
+- recommendation;
+- conflicts dan open_questions;
+- affiliate disclosure metadata.
+
+Jika data tidak tersedia, gunakan null atau array kosong. Jangan mengisi field agar tampak lengkap. Prompt kanonis mendefinisikan struktur lengkap setiap objek, enum status, aturan referensi, dan quality gate.
+
+### 6.4 File output dan handoff
+
+Simpan hasil sebagai file draft bernama `PRODUCT_ID_notebooklm_synthesis.json`. Nama tersebut adalah pola penamaan, bukan ID baru. Simpan semua input mentah secara terpisah.
+
+Sebelum import:
+1. Parse JSON.
+2. Validasi schema_version dan seluruh field.
+3. Cocokkan product_id/research_key/product_url dengan Manifest.
+4. Pastikan setiap source_id/evidence_id yang dirujuk tersedia.
+5. Pastikan finding/solution tidak memiliki referensi bukti yang putus.
+6. Periksa konflik identitas, varian, dan bukti.
+7. Jalankan pemeriksaan keselamatan solusi.
+8. Masukkan ke status DRAFT atau NEEDS_HUMAN_REVIEW; jangan publish otomatis.
 
 ## 7. MODEL DATA DAN SKEMA PERTUKARAN
 
@@ -365,116 +369,41 @@ Gunakan prompt berikut setelah memasukkan sumber riset dan paket ekspor Skill 04
 - Satu evidence dapat terkait ke beberapa finding.
 - Satu publication harus menunjuk ke versi data dan riset yang digunakan.
 
-### 7.3 Skema JSON pertukaran — versi 1
+### 7.3 Kontrak JSON pertukaran — versi 1.0
 
-Skema berikut adalah kerangka konseptual untuk pertukaran data. Implementasi harus menambahkan validasi JSON Schema/Pydantic dan migrasi versi. Field yang belum diketahui harus tetap null atau berstatus belum tersedia, bukan diisi contoh seolah data nyata.
+Schema JSON kanonis untuk output NotebookLM ditetapkan dalam dokumen [NotebookLM Synthesis Prompt v1.0](NotebookLM/NotebookLM_Synthesis_Prompt_v1.0.md), bukan pada contoh JSON parsial di blueprint ini.
 
-    {
-      "schema_version": "1.0",
-      "research_key": "RESEARCH_KEY_FROM_WORKFLOW",
-      "product_identity": {
-        "product_id": "SHOPEE_LISTING_ID",
-        "canonical_product_id": null,
-        "canonical_identity_status": "NOT_VERIFIED",
-        "product_name": "LISTING_PRODUCT_NAME",
-        "brand": null,
-        "model": null,
-        "variant_id": null,
-        "product_url": "SOURCE_LISTING_URL"
-      },
-      "listing_snapshot": {
-        "collection_date": null,
-        "shop_name": null,
-        "category": null,
-        "displayed_price": null,
-        "displayed_rating": null,
-        "displayed_review_count": null,
-        "displayed_sold_count": null,
-        "seller_claims": [],
-        "listing_specifications": [],
-        "source_manifest_file": null
-      },
-      "research_metadata": {
-        "research_run_id": null,
-        "master_prompt_version": "4.0",
-        "sidepanel_skill_versions": [],
-        "synthesis_tool": "NotebookLM",
-        "synthesized_at": null,
-        "publication_status": "DRAFT"
-      },
-      "sources": [],
-      "evidence": [],
-      "findings": {
-        "product_utility": [],
-        "strengths": [],
-        "risks_and_limitations": [],
-        "buyer_fit": [],
-        "root_cause_assessments": [],
-        "verified_wins": []
-      },
-      "solutions": [],
-      "conflicts": [],
-      "open_questions": [],
-      "dataset_audit": {
-        "audit_status": "NOT_ASSESSED",
-        "export_readiness": "NOT_ASSESSED",
-        "coverage_status": "NOT_ASSESSED",
-        "limitations": []
-      },
-      "affiliate": {
-        "affiliate_url": null,
-        "disclosure_required": true
-      }
-    }
+Kontrak tersebut adalah sumber kebenaran untuk:
+- nama dan struktur seluruh key;
+- tipe data dan penggunaan null/array kosong;
+- enum status;
+- struktur sources, evidence, findings, solutions, conflicts, dan open_questions;
+- pemetaan input SidePanel/AI Mode;
+- publication status dan validasi referensi.
 
-### 7.4 Struktur evidence minimal
+Jangan membuat implementasi backend dari contoh lama atau menebak field yang tidak dijelaskan. Jika schema berubah, naikkan schema_version, perbarui prompt NotebookLM, validator backend, dokumentasi, dan migration secara bersamaan.
 
-    {
-      "evidence_id": "EV-AI-001",
-      "source_id": "SRC-AI-001",
-      "product_id": "SHOPEE_LISTING_ID_OR_NULL",
-      "variant_id": null,
-      "evidence_type": "MANUFACTURER_DOCUMENT",
-      "claim_or_observation": "Deskripsi singkat bukti yang benar-benar ditemukan",
-      "verbatim_excerpt": null,
-      "source_locator": "URL_OR_PAGE_OR_TIMESTAMP_OR_REVIEW_ID",
-      "accessed_at": null,
-      "source_date": null,
-      "verification_status": "UNVERIFIED",
-      "limitations": [],
-      "related_finding_ids": []
-    }
+### 7.4 Relasi dan validasi referensi
 
-### 7.5 Struktur finding minimal
+- `product_identity.product_id` harus sama dengan Product Manifest.
+- `canonical_product_id` hanya diisi setelah verifikasi independen.
+- Setiap `evidence.source_id` harus merujuk ke salah satu objek pada `sources`.
+- Setiap `finding.evidence_ids`, `solution.evidence_ids`, dan referensi bukti pada `conflicts` harus merujuk ke objek pada `evidence`.
+- Referensi yang tidak ditemukan harus menyebabkan validation failure atau human review; jangan diperbaiki dengan membuat ID baru.
+- Dataset audit harus mempertahankan status Skill 03/04 dan tidak boleh dipetakan ke product quality score.
 
-    {
-      "finding_id": "FND-001",
-      "finding_type": "PRODUCT_RISK",
-      "statement": "Pernyataan yang proporsional dan spesifik",
-      "status": "USER_REPORTED",
-      "evidence_ids": ["EV-SP-001"],
-      "counter_evidence_ids": [],
-      "scope": {
-        "product_id": "SHOPEE_LISTING_ID",
-        "variant_id": null,
-        "usage_conditions": []
-      },
-      "limitations": [],
-      "publication_status": "DRAFT"
-    }
+### 7.5 Versioning dan kompatibilitas
 
-### 7.6 Tipe solusi
+Simpan secara terpisah:
+- `schema_version`;
+- `synthesis_prompt_version`;
+- Master Prompt version;
+- SidePanel skill versions;
+- research_run_id;
+- synthesized_at;
+- input inventory.
 
-Setiap solusi harus menggunakan kategori:
-
-- OFFICIAL_MAINTENANCE: petunjuk perawatan/pemasangan dari produsen.
-- OFFICIAL_REPAIR: prosedur perbaikan resmi.
-- USER_WORKAROUND: cara yang dilaporkan pengguna; bukan otomatis rekomendasi.
-- DIY_FIX: tindakan mandiri yang telah ditinjau bukti dan risikonya.
-- PROFESSIONAL_SERVICE: membutuhkan teknisi/profesional.
-- NO_SAFE_SOLUTION_KNOWN: belum ada solusi aman yang dapat direkomendasikan.
-
-Field solusi minimal: solution_id, solution_type, problem_addressed, recommended_action, evidence_ids, source_type, verification_status, safety_notes, applicability_conditions, limitations, and publication_status.
+Setiap perubahan schema harus memiliki migration dan pengujian backward compatibility. Data mentah tidak boleh ditimpa saat migrasi.
 
 ---
 
