@@ -263,20 +263,23 @@ Pertahankan salah satu status Skill 03:
 - PASS_WITH_WARNINGS
 - NEEDS_REVIEW
 - FAIL
-- AUDIT_NOT_PROVIDED
 
-Jika laporan menggunakan status yang tidak dikenali, salin nilai sumber dan tandai STATUS_NOT_RECOGNIZED. Jangan memetakannya secara diam-diam.
+Jika laporan Auditor tidak diberikan, catat `AUDIT_NOT_PROVIDED` sebagai kondisi input di metadata Exporter, bukan sebagai status yang dikeluarkan Auditor. Jika laporan menggunakan status yang tidak dikenali, salin nilai sumber dan tandai STATUS_NOT_RECOGNIZED. Jangan memetakannya secara diam-diam.
 
 ### 7.3 Handoff readiness
 
-Gunakan status kesiapan ekspor berikut:
+Gunakan Handoff Status Auditor (Skill 03) hanya:
+- READY_FOR_EXPORT
+- READY_WITH_WARNINGS
+- NOT_READY
 
-- READY_FOR_EXPORT — input utama tersedia, tidak ada konflik identitas kritis, struktur dapat diproses, dan audit PASS.
-- READY_WITH_WARNINGS — ekspor dapat dibuat, tetapi ada keterbatasan atau temuan yang harus dibawa ke tahap berikutnya.
-- NOT_READY — konflik identitas kritis, kerusakan struktur, atau masalah yang membuat penggabungan tidak aman.
-- PARTIAL_EXPORT — hanya sebagian input yang tersedia atau hanya sebagian record dapat diekspor dengan aman.
+Exporter menetapkan Export Readiness secara terpisah:
+- READY_FOR_EXPORT — seluruh input yang dibutuhkan tersedia dan valid.
+- READY_WITH_WARNINGS — ekspor dapat dibuat dengan caveat yang terdokumentasi.
+- NOT_READY — tidak ada ekspor aman yang dapat dibuat.
+- PARTIAL_EXPORT — hanya subset input/record yang dapat diekspor dengan aman dan batas subset dinyatakan eksplisit.
 
-Status kesiapan ekspor tidak menggantikan status audit. Tampilkan keduanya secara terpisah.
+Jangan menyebut PARTIAL_EXPORT sebagai Handoff Status Auditor. Tampilkan Audit Status, Handoff Status, dan Export Readiness sebagai field terpisah.
 
 Aturan minimum:
 - Auditor FAIL atau konflik identitas listing yang belum terselesaikan: NOT_READY.
