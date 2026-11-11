@@ -3288,32 +3288,32 @@ Ketentuan:
 
 Gunakan status identitas berikut secara konsisten:
 
-- `EXACT_MATCH`
-- `PROBABLE_MATCH`
-- `FAMILY_ONLY`
+- `EXACT_PRODUCT_MATCH`
+- `PROBABLE_PRODUCT_MATCH`
+- `PRODUCT_FAMILY_MATCH`
 - `SIMILAR_PRODUCT`
 - `MISMATCH`
 - `UNKNOWN`
 
-Hanya bukti `EXACT_MATCH` dan `PROBABLE_MATCH` yang boleh digunakan sebagai dasar utama klaim spesifik model.
+Hanya bukti `EXACT_PRODUCT_MATCH` dan `PROBABLE_PRODUCT_MATCH` yang boleh digunakan sebagai dasar utama klaim spesifik model.
 
-Bukti `FAMILY_ONLY` hanya boleh digunakan sebagai konteks keluarga produk dan wajib diberi penanda.
+Bukti `PRODUCT_FAMILY_MATCH` hanya boleh digunakan sebagai konteks keluarga produk dan wajib diberi penanda.
 
 Bukti `SIMILAR_PRODUCT` dan `MISMATCH` tidak boleh digunakan untuk menyimpulkan karakteristik produk yang sedang diteliti.
 
 ## F. ATURAN EVIDENCE ID
 
-Gunakan awalan `AI-E` untuk seluruh bukti yang ditemukan melalui Google Search AI Mode.
+Gunakan namespace `SRC-AI-###` untuk sumber unik dan `EV-AI-###` untuk setiap unit bukti yang dapat ditelusuri.
 
 Format:
-- `AI-E001`
-- `AI-E002`
-- `AI-E003`
+- `EV-AI-001`
+- `EV-AI-002`
+- `EV-AI-003`
 - dan seterusnya.
 
 Ketentuan:
 1. Nomor harus berurutan.
-2. Satu Evidence ID hanya mewakili satu sumber atau satu unit bukti yang dapat ditelusuri.
+2. Satu Evidence ID mewakili satu unit bukti atomik dan menunjuk tepat satu Source ID. Satu Source ID dapat memiliki beberapa Evidence ID.
 3. Jangan menggunakan ulang Evidence ID.
 4. Jangan mengubah Evidence ID ketika menyusun ulang laporan.
 5. Setiap temuan penting harus mencantumkan Evidence ID.
@@ -3937,7 +3937,7 @@ NotebookLM Synthesis Prompt v1.1 adalah adapter yang menormalisasi dossier ini k
 Jika template lama atau sumber yang ditempel masih menggunakan label berikut, normalisasikan hanya pada data turunan NotebookLM; pertahankan nilai mentah pada dossier dan catat alias yang dipakai:
 - `MANUFACTURER_DOCUMENTATION` → `MANUFACTURER_DOCUMENT`.
 - `FULL_PAGE` → `FULL_ACCESS`; `SEARCH-SNIPPET ONLY` → `SEARCH_SNIPPET_ONLY`; `PARTIAL ACCESS` → `PARTIAL_ACCESS`; `NOT ACCESSIBLE` → `NOT_ACCESSIBLE`.
-- `EXACT_MATCH` → `EXACT_PRODUCT_MATCH` hanya jika atribut produk/model benar-benar cocok; selain itu gunakan status matching yang sesuai bukti.
+- `EXACT_PRODUCT_MATCH` → `EXACT_PRODUCT_MATCH` hanya jika atribut produk/model benar-benar cocok; selain itu gunakan status matching yang sesuai bukti.
 - `NOT VERIFIED` → `UNVERIFIED` untuk verification_status, bukan untuk nilai atribut.
 - `MANUFACTURER_RECOMMENDED` bukan solution_type. Petakan tindakan ke MAINTENANCE/REPAIR/TROUBLESHOOTING/WORKAROUND/PREVENTION dan set solution_source=MANUFACTURER hanya jika berasal dari panduan produsen.
 - `BASIC_TROUBLESHOOTING` → solution_type=`TROUBLESHOOTING`; `DIY` dicatat terpisah pada implementation_method.
