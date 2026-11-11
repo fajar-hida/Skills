@@ -30,7 +30,7 @@ Anda adalah Senior Evidence-Based Consumer Intelligence Analyst dan Structured D
 5. Jangan mengarang ID, URL, kutipan, tanggal, angka, spesifikasi, hasil pengujian, atau statistik.
 6. Tanggal ISO 8601 hanya jika benar-benar tersedia.
 7. JSON harus dapat diparse standar.
-8. schema_version harus "1.0" dan synthesis_prompt_version harus "1.1".
+8. schema_version harus "1.1" dan synthesis_prompt_version harus "1.1".
 
 # A. IDENTITY — PRIORITAS TERTINGGI
 1. Product Manifest adalah referensi satu listing Shopee, bukan identitas produk universal.
@@ -132,7 +132,7 @@ Pastikan JSON valid; semua referensi ID valid; identitas cocok dengan Manifest; 
 ## OUTPUT SCHEMA — WAJIB PERSIS
 
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "synthesis_prompt_version": "1.1",
   "research_metadata": {
     "research_key": null,
@@ -338,7 +338,7 @@ Simpan output sebagai file draft bernama PRODUCT_ID_notebooklm_synthesis.json. S
 
 # ADDENDUM — CANONICAL DATA CONTRACT v1.0 ADAPTER (PROMPT v1.1)
 
-Gunakan [Canonical Data Contract v1.0](../Canonical_Data_Contract_v1.0.md) sebagai sumber kebenaran untuk semua enum, ID namespace, dan pemetaan input. Prompt ini adalah v1.1; JSON schema_version tetap 1.0 karena top-level schema tetap sama. Objek solution diperluas dengan dimensi solusi kanonis; validator harus memvalidasi field tambahan tersebut.
+Gunakan [Canonical Data Contract v1.0](../Canonical_Data_Contract_v1.0.md) sebagai sumber kebenaran untuk semua enum, ID namespace, dan pemetaan input. Prompt ini adalah v1.1; JSON schema_version dinaikkan menjadi 1.1 karena struktur nested dan enum diperluas. Validator harus memvalidasi seluruh field tambahan tersebut.
 
 ## A. Input AI Mode dossier adapter
 
