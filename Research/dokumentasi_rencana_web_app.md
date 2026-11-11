@@ -1,250 +1,810 @@
-# BLUEPRINT & DOKUMENTASI LENGKAP ARSITEKTUR WEB APP
+# BLUEPRINT & DOKUMENTASI ARSITEKTUR WEB APP
 
-## Indonesia-First Consumer Intelligence & Reality Check Affiliate System
+## Indonesia-First Consumer Intelligence & Evidence-Based Reality Check Affiliate System
 
-**Versi:** 4.0 (Updated with Utility & Problem-Solving Framework)
+**Versi:** 5.0 — Evidence-Based Consumer Intelligence  
+**Status:** Blueprint arsitektur dan kontrak produk  
+**Bahasa utama:** Bahasa Indonesia  
+**Target implementasi awal:** Python + Gradio, dengan arsitektur data yang siap dipindahkan ke database relasional.
 
-## 1. IKHTISAR SISTEM & PRINSIP UTAMA
+---
 
-Sistem ini dirancang untuk membangun **Web App Penasihat Belanja Independen berbasis AI** yang menyajikan ulasan produk e-commerce secara jujur, objektif, dan berfokus pada bukti (*evidence-led*).
+## 1. IKHTISAR SISTEM
 
-Web App ini tidak bertujuan untuk melakukan *hard-selling*, melainkan memberikan **Pre-Checkout Reality Check** (peringatan risiko sebelum membeli) yang dipadukan dengan **Problem-Solving & Functional Utility** (penjelasan kegunaan nyata), **Verified Wins** (bukti kepuasan pembeli teliti), serta **Solusi DIY/Anti-Zonk**.
+Web App ini adalah **alat bantu keputusan belanja independen** yang membantu konsumen Indonesia memahami kecocokan produk, manfaat nyata, risiko, keterbatasan, bukti pengalaman pengguna, dan opsi penyelesaian masalah sebelum melakukan pembelian.
 
-### **Prinsip Utama:**
+Fokus utamanya adalah **Pre-Checkout Reality Check** yang dipadukan dengan **Problem-Solving & Functional Utility**. Aplikasi tidak boleh berubah menjadi halaman hard-selling atau mesin pemberi skor tanpa dasar.
 
-1. **The Honest Balance (Keseimbangan Kejujuran):** Reality Check bertindak sebagai *rem* (membangun kepercayaan dan mencegah salah beli), sementara Kelebihan & Problem-Solving bertindak sebagai *gas* (meningkatkan keyakinan membeli).
+### 1.1 Tujuan produk
 
-2. **Problem-Solving First:** Menjelaskan produk bukan dari aspek spesifikasi semata, melainkan dari masalah harian (*pain points*) yang berhasil dituntaskan produk tersebut.
+1. Membantu pengguna menilai apakah suatu produk sesuai dengan kebutuhan dan kondisi penggunaannya.
+2. Menjelaskan manfaat fungsional berdasarkan bukti, bukan hanya menyalin klaim penjual.
+3. Menampilkan keluhan, keterbatasan, dan potensi ketidakcocokan secara proporsional.
+4. Menyediakan solusi, perawatan, atau workaround hanya jika dasar bukti dan batas keselamatannya jelas.
+5. Menghubungkan setiap temuan penting ke sumber yang dapat diperiksa.
+6. Menghasilkan rekomendasi yang transparan, termasuk ketika bukti belum cukup untuk menyimpulkan.
 
-3. **Zero Coding Scraper:** Memanfaatkan kombinasi Google AI Mode, Master Prompt 3.0, dan Chrome Side Panel secara semi-manual untuk mendapatkan data kualitatif paling murni tanpa risiko diblokir sistem marketplace.
+### 1.2 Prinsip utama
 
-4. **Monetisasi Etis:** Mengarahkan transaksi via Link Afiliasi Shopee dengan menyajikan rekomendasi *bundle cross-sell* yang rasional dan relevan.
+- **Evidence before persuasion:** klaim dan rekomendasi harus ditopang sumber yang dapat ditelusuri.
+- **The Honest Balance:** tampilkan manfaat dan risiko secara seimbang. Banyaknya ulasan positif tidak menghapus risiko yang relevan, dan satu keluhan tidak otomatis membuktikan cacat umum.
+- **Problem-Solving First:** jelaskan masalah pengguna yang mungkin terbantu, kondisi penggunaan, dan batas manfaat produk.
+- **Identity before synthesis:** pastikan produk dan listing yang dibahas benar sebelum menggabungkan data.
+- **Traceability by design:** setiap temuan penting memiliki Evidence ID dan Source ID.
+- **Uncertainty is valid output:** gunakan status belum diketahui atau bukti tidak cukup; jangan mengisi kekosongan dengan dugaan.
+- **No fabricated authority:** jangan menampilkan expert score, match percentage, durability forecast, atau angka keyakinan tanpa metodologi yang terdokumentasi dan dapat diuji.
+- **Ethical affiliate:** komisi afiliasi tidak boleh menentukan urutan, skor, atau kesimpulan rekomendasi.
+- **Privacy by minimization:** kumpulkan data minimum yang diperlukan dan jangan menyimpan identitas pribadi reviewer.
 
-## 2. DIAGRAM ALUR DATA (DATA PIPELINE)
+### 1.3 Batas sistem
 
-```
-[ STEP 1: DATA MINING ]
-  ├── Google AI Mode (Master Prompt 3.0) ──> Riset Lintas Platform (TikTok, YT, Forum, Reddit)
-  └── Chrome Side Panel (Shopee)       ──> Ekstraksi Semi-Manual (10-20 Ulasan B1 & B5 Terbaru)
-                                              │
-                                              ▼
-[ STEP 2: SYNTHESIS & EXTRACTION ]
-  └── NotebookLM (Pabrik Sintesis)      ──> Mengolah Data Mentah Menggunakan Prompt Khusus
-                                              │
-                                              ▼
-[ STEP 3: DATABASE STRUCTURE ]
-  └── reality_check_db.json            ──> File Penyimpanan JSON Terstruktur & Terpusat
-                                              │
-                                              ▼
-[ STEP 4: INTERFACE & CONVERSION ]
-  └── Gradio Web App (Hugging Face)     ──> UI Interaktif: Search, Reality Check, Utility, Traffic Loop
+Aplikasi bukan laboratorium pengujian produk, lembaga sertifikasi, layanan diagnosis keselamatan, atau jaminan kualitas. Aplikasi menyintesis sumber yang tersedia. Temuan harus dibedakan dari hasil pengujian fisik independen.
 
-```
+---
 
-## 3. METODOLOGI PENGUMPULAN DATA MENTAH (DATA MINING)
+## 2. ARSITEKTUR DAN ALUR DATA
 
-### **A. Google AI Mode (Master Prompt 3.0)**
+### 2.1 Pipeline riset
 
-Menggunakan Master Prompt 3.0 (*Indonesia-First Cross-Platform Consumer Intelligence Research*) untuk melakukan pencarian kualitatif independen lintas platform:
+1. **Google AI Mode — Master Prompt 4.0:** riset independen lintas platform, identitas produk, spesifikasi produsen, pengalaman penggunaan, kegagalan, solusi, pesaing, dan kecocokan pembeli.
+2. **Chrome Side Panel — Skill 01 Product Profiler:** menangkap snapshot satu listing Shopee ke Product Manifest.
+3. **Chrome Side Panel — Skill 02 Review Extractor:** mengekstrak data ulasan mentah sesuai kontrak CSV, tanpa membuat analisis kualitas atau rekomendasi.
+4. **Chrome Side Panel — Skill 03 Review Auditor:** memeriksa konsistensi identitas, provenance, record, duplikasi, dan cakupan dataset.
+5. **Chrome Side Panel — Skill 04 Review Exporter:** membuat paket ekspor dan handoff untuk sintesis.
+6. **NotebookLM:** menyintesis sumber dan data ekspor menjadi temuan terstruktur dengan rujukan Source ID dan Evidence ID.
+7. **Validation & Publication Gate:** validasi skema, identitas, bukti, konflik, keamanan, dan kelayakan publikasi.
+8. **Database:** menyimpan entitas, snapshot, dataset, sumber, bukti, temuan, solusi, dan versi publikasi.
+9. **Gradio Web App:** menyediakan pencarian, Reality Check, utility, buyer fit, request queue, dan shareable card.
 
-* **Purchase Intelligence:** Marketplace (Shopee, Tokopedia, Blibli, Lazada, TikTok Shop).
+### 2.2 Diagram alur
 
-* **Social Intelligence:** TikTok, YouTube, Instagram Reels, Facebook Groups, X/Twitter, Reddit, blog dan website review.
+    [Google AI Mode / Master Prompt 4.0] ----> [Research Sources]
+                                                    |
+    [Skill 01 Product Profiler] ----------------> [Product Manifest]
+                                                    |
+    [Skill 02 Review Extractor] ----------------> [Raw Review CSV]
+                                                    |
+    [Skill 03 Review Auditor] ------------------> [Audit Report]
+                                                    |
+    [Skill 04 Review Exporter] ------------------> [Export Package]
+                                                    |
+                                                    v
+    [NotebookLM Synthesis + Evidence Mapping]
+                         |
+                         v
+    [Schema / Identity / Evidence / Safety Validation]
+                         |
+                         v
+    [Versioned Database] <----> [Admin Review & Publication]
+                         |
+                         v
+    [Gradio Web App: Search / Reality Check / Utility / Request]
 
-* **Technical Intelligence:** Spesifikasi produsen, panduan material, dan standar perawatan.
+### 2.3 Pemisahan lapisan data
 
-### **B. Chrome Side Panel (Shopee Extraction)**
+Data harus dipisahkan menjadi tiga lapisan:
 
-Melakukan ekstraksi cepat ulasan ekstrem langsung dari halaman produk Shopee via Gemini Side Panel di Google Chrome:
+- **Raw layer:** salinan sumber, Product Manifest, review CSV, metadata ekstraksi, audit, dan dokumen riset. Data mentah tidak boleh ditimpa oleh kesimpulan AI.
+- **Derived layer:** entitas identitas, evidence register, temuan, konflik, solusi, buyer fit, dan hasil sintesis.
+- **Published layer:** konten yang telah melewati validasi dan persetujuan publikasi. UI publik hanya membaca versi yang berstatus published.
 
-* **Ulasan Bintang 1 (10-20 sampel):** Fokus pada keluhan fatal, kerusakan material, aus jangka pendek, atau salah ekspektasi.
+Jangan menjadikan satu objek JSON hasil NotebookLM sebagai satu-satunya sumber kebenaran. JSON dapat dipakai sebagai format pertukaran atau prototipe, tetapi data harus dapat dinormalisasi dan diverifikasi.
 
-* **Ulasan Bintang 5 Terbaru (10-20 sampel):** Fokus pada ulasan berpola *Before-After*, tips pemakaian yang berhasil, dan kegunaan nyata (*real utility*).
+---
 
-* **Instruksi Ekstraksi Side Panel:**
+## 3. KONTRAK IDENTITAS PRODUK
 
-  > *"Tolong kelompokkan ulasan-ulasan ini menjadi dua: (1) Keluhan fatal dan akar masalah dari bintang 1, serta (2) Alasan kepuasan spesifik, kegunaan nyata, dan trik pemakaian dari bintang 5. Abaikan ulasan klise seperti 'barang bagus pengiriman cepat'."*
+### 3.1 Identitas listing dan identitas produk
 
-## 4. PROMPT LENGKAP UNTUK NOTEBOOKLM (SINTESIS DATA)
+Istilah berikut tidak boleh dipertukarkan:
 
-Salin dan tempel prompt di bawah ini ke dalam chat box **NotebookLM** setelah memasukkan hasil riset Google AI Mode dan ulasan dari Chrome Side Panel sebagai sumber (*Sources*):
+- **product_id / listing_id:** ID untuk satu listing Shopee yang diteliti. Mengikuti identitas listing pada Product Manifest.
+- **canonical_product_id:** ID produk kanonis lintas listing, hanya boleh diberikan jika kesamaan produk telah diverifikasi secara independen.
+- **research_key:** kunci penghubung pekerjaan riset. Bukan pengganti product_id atau canonical_product_id.
+- **variant_id:** identitas varian jika dapat dibuktikan dari sumber. Jika varian tidak dapat ditentukan, statusnya harus dinyatakan tidak diketahui.
 
-```
-# ROLE & INSTRUCTION FOR NOTEBOOKLM
-Anda adalah Senior Consumer Intelligence Analyst & JSON Data Extractor.
-Tugas Anda adalah menganalisis seluruh sumber data yang ada di notebook ini (hasil riset Google AI Mode, dokumen teknis, serta ulasan Shopee Bintang 1 dan Bintang 5). 
+Satu produk kanonis dapat memiliki beberapa listing. Sebaliknya, dua listing dengan nama, foto, atau kata kunci mirip tidak otomatis merupakan produk yang sama.
 
-Ekstrak seluruh temuan menjadi SATU OBJEK JSON TUNGGAL yang valid dan bersih, tanpa kalimat pembuka atau penutup.
+### 3.2 Aturan penggabungan
 
-ATURAN EKSTRAKSI KETAT:
-1. STRICT ANTI-HALUSINASI: Jangan mengarang data. Jika data tidak ditemukan di sumber, isi dengan "Tidak ada data terverifikasi".
-2. PEMISAHAN MASALAH: Pisahkan masalah kualitas/fungsi produk (Product Defect) dari masalah pengiriman/layanan toko (Delivery Issue).
-3. KUTIPAN ASLI: Kutipan (quotes) harus verbatim (persis seperti yang tertulis di sumber, maks 25 kata).
-4. UTILITY & PROBLEM SOLVING FOCUS: Identifikasi dengan jelas masalah utama harian yang diselesaikan oleh produk ini dan trik kreatif pemakaian dari komunitas.
+1. Jangan menggabungkan review dari listing berbeda hanya karena nama atau mereknya mirip.
+2. Jangan menyatukan varian berbeda jika kesetaraan varian belum terbukti.
+3. Jangan menetapkan canonical_product_id berdasarkan kemiripan judul saja.
+4. Jika identitas bertentangan, hentikan sintesis lintas listing dan tandai konflik.
+5. Product Manifest adalah snapshot listing pada waktu pengambilan, bukan verifikasi independen atas klaim penjual.
+6. seller_claims, listing_specifications, dan listing_description harus tetap diberi label sebagai klaim/listing-originated.
 
-Hasilkan output persis mengikuti skema JSON di bawah ini:
+### 3.3 Snapshot marketplace
 
-{
-  "product_id": "GANTI_DENGAN_SLUG_PRODUK",
-  "product_name": "Nama Produk Resmi",
-  "shopee_link": "URL_AFILIASI_SHOPEE",
-  "pinterest_image_url": "URL_GAMBAR_ESTETIS_PINTEREST",
-  "match_tags": ["tag1", "tag2", "tag3"],
-  "expert_score": 8.5,
-  "product_utility_and_solving": {
-    "core_pain_point_solved": "Masalah utama pengguna/rumah tangga yang paling tuntas diselesaikan oleh produk ini.",
-    "functional_efficiency": "Bagaimana mekanisme fungsional produk mempermudah hidup, menghemat waktu, atau menghemat ruang.",
-    "smart_workaround": "Tips, trik kreatif, atau modifikasi kecil dari komunitas agar produk berfungsi 100% optimal."
-  },
-  "strengths": {
-    "headline": "Kelebihan Utama Paling Menonjol",
-    "detail": "Ringkasan manfaat nyata berdasarkan bukti bintang 5 dan riset sosial."
-  },
-  "reality_check": {
-    "skenario_buruk": "Masalah terburuk atau keluhan fatal yang dilaporkan pembeli bintang 1 setelah beberapa waktu pemakaian.",
-    "root_cause": "Akar penyebab kegagalan fungsi atau kelemahan material.",
-    "mismatched_buyer": "Tipe pembeli atau kondisi penggunaan yang DILARANG membeli produk ini."
-  },
-  "durability_forecast": {
-    "bulan_1": "Kondisi fisik dan performa fungsi di minggu 1 hingga minggu ke-4.",
-    "bulan_3": "Titik kritis ketahanan atau penurunan fungsi di bulan ke-3."
-  },
-  "solutions": {
-    "maintenance_tip": "Langkah pemeliharaan/pemasangan resmi yang disarankan produsen.",
-    "diy_fix": "Solusi perbaikan mandiri jika terjadi masalah umum pada produk."
-  },
-  "verified_wins": {
-    "buyer_quote": "Kutipan asli ulasan bintang 5 dari pembeli yang sangat puas karena menggunakan cara pakai yang benar.",
-    "buyer_persona": "Profil pembeli yang cocok (misal: Anak Kos, Pemilik Dapur Minimalis).",
-    "success_factor": "Faktor kunci mengapa mereka berhasil menggunakan produk tanpa kendala."
-  },
-  "bundle_cross_sell": {
-    "item_name": "Nama Aksesori atau Barang Pelengkap",
-    "reason": "Alasan teknis/fungsional mengapa barang ini wajib dibeli bersamaan untuk mengoptimalkan produk utama."
-  }
-}
+Nilai displayed_price, displayed_rating, displayed_review_count, displayed_sold_count, listed_variants, dan collection_date bersifat temporal. Simpan waktu pengambilan dan jangan menampilkannya seolah-olah data real-time jika belum diperbarui.
 
-HANYA HASILKAN KODE JSON DI ATAS.
+---
 
-```
+## 4. KONTRAK INTEGRASI SIDE PANEL
 
-## 5. SKEMA DATABASE JSON FINAL (`reality_check_db.json`)
+Aplikasi harus kompatibel dengan empat skill pada folder Research/SidePanel dan tidak mengubah kontrak data mereka secara sepihak.
 
-Berikut adalah struktur file JSON terpusat yang akan dibaca langsung oleh aplikasi Python Gradio:
+### 4.1 Tanggung jawab skill
 
-```
-[
-  {
-    "product_id": "rak_kamar_mandi_01",
-    "product_name": "Rak Dinding Kamar Mandi Tempel Alumunium Tanpa Bor",
-    "shopee_link": "https://shopee.co.id/universal-link-affiliate-anda",
-    "pinterest_image_url": "https://i.pinimg.com/originals/ab/cd/ef/rak_kamar_mandi_bersih.jpg",
-    "match_tags": ["kamar mandi", "rak tempel", "tanpa bor", "anti karat", "kos minimalis"],
-    "expert_score": 8.2,
-    "product_utility_and_solving": {
-      "core_pain_point_solved": "Mengatasi kamar mandi sempit & berantakan tanpa perlu merusak dinding keramik dengan bor paku.",
-      "functional_efficiency": "Sistem tiris air otomatis di dasar rak mencegah sabun menjadi lembek dan membusuk akibat tergenang air.",
-      "smart_workaround": "Bersihkan dinding dengan alkohol 70% sebelum stiker ditempel, lalu sangga stiker dengan masking tape selama 24 jam sebelum diberi beban."
-    },
-    "strengths": {
-      "headline": "Desain Estetis Ala Hotel & Material Bebas Karat",
-      "detail": "Material alumunium anoda ringan yang tahan air garam/sabun, dipadu dengan estetika minimalis modern."
-    },
-    "reality_check": {
-      "skenario_buruk": "Rak tiba-tiba jatuh ambruk di malam hari dan stiker perekat terkelupas penuh.",
-      "root_cause": "Daya rekat stiker melemah akibat kelembapan tinggi dan permukaan tembok keramik masih berkerak sisa sabun/minyak saat ditempel.",
-      "mismatched_buyer": "Pemilik kamar mandi dengan dinding tembok cat biasa, keramik berpori kasar, atau keramik bertekstur kulit jeruk."
-    },
-    "durability_forecast": {
-      "bulan_1": "Berfungsi sempurna, tampilan ruangan rapi seketika.",
-      "bulan_3": "Titik kritis perekat jika sering terkena uap air panas (hot shower) secara langsung tanpa ventilasi memadai."
-    },
-    "solutions": {
-      "maintenance_tip": "Lap bersih area tempel, diamkan 24 jam tanpa beban setelah perekat dipasang.",
-      "diy_fix": "Jika perekat bawaan mulai longgar, perkuat area pinggir stiker menggunakan silikon sealant transparan."
-    },
-    "verified_wins": {
-      "buyer_quote": "Awalnya was-was takut copot. Tapi pas ikutan tips bersihin pake alkohol dan didiemin 24 jam, kokoh banget gak geser sebulan lebih!",
-      "buyer_persona": "Anak Kos / Pengguna Teliti",
-      "success_factor": "Disiplin mengikuti protokol pembersihan permukaan dinding sebelum pemasangan."
-    },
-    "bundle_cross_sell": {
-      "item_name": "Stiker Perekat Cadangan Heavy Duty 3M + Cairan Alkohol Medis 70%",
-      "reason": "Menjamin daya rekat 2x lebih kuat dan memastikan permukaan dinding bebas minyak sebelum ditempel."
+| Skill | Tanggung jawab | Bukan tanggung jawab |
+|---|---|---|
+| 01 Product Profiler | Mengambil snapshot satu listing dan membuat Product Manifest | Menetapkan kebenaran spesifikasi atau identitas kanonis |
+| 02 Review Extractor | Mengekstrak record ulasan mentah dan metadata | Menilai kualitas produk, akar masalah, atau rekomendasi |
+| 03 Review Auditor | Mengaudit identitas, provenance, konsistensi, duplikasi, dan cakupan | Menghapus data atau menilai kualitas produk |
+| 04 Review Exporter | Membuat paket ekspor dan handoff | Mengubah data mentah atau membuat kesimpulan produk |
+
+### 4.2 Kontrak CSV review
+
+Header kanonis berikut harus dipertahankan persis dan berurutan:
+
+    review_id,collection_id,product_id,product_name,product_url,rating_filter,sort_order,source_page,source_position,rating,variant,review_date,usage_duration,original_text,sentiment,tags,review_type,has_image,has_video,purchase_badge,seller_response,extraction_status,duplicate_status
+
+Ketentuan:
+
+- Jangan menambah, menghapus, mengganti nama, atau mengubah urutan kolom tanpa revisi kontrak seluruh skill dan migrasi downstream.
+- original_text harus dipertahankan verbatim.
+- Jangan menyimpan nama akun, nomor telepon, alamat, atau identitas pribadi reviewer.
+- ID yang tidak diketahui tidak boleh ditebak. Penanda PUNK atau UNK adalah keterbatasan data, bukan izin untuk mengarang.
+- Data review harus tetap terkait dengan product_id listing yang tepat.
+- Status audit dataset tidak sama dengan penilaian kualitas produk.
+- Dataset parsial tidak boleh disebut sebagai seluruh ulasan listing.
+
+### 4.3 Paket ekspor Skill 04
+
+Paket minimum yang diharapkan:
+
+- <product_id>_product_manifest.yaml
+- <product_id>_shopee_reviews.csv
+- <product_id>_notebooklm_reviews.txt
+
+Sertakan audit report, collection progress, provenance register, dan handoff note apabila tersedia pada output skill. Simpan file asli tanpa modifikasi dan catat versi skill/format yang digunakan.
+
+### 4.4 Status yang harus dipertahankan
+
+Status audit dan ekspor tidak boleh disederhanakan menjadi satu boolean.
+
+Audit status:
+- PASS
+- PASS_WITH_WARNINGS
+- NEEDS_REVIEW
+- FAIL
+
+Export readiness:
+- READY_FOR_EXPORT
+- READY_WITH_WARNINGS
+- NOT_READY
+
+Coverage status:
+- TARGET_REACHED
+- IN_PROGRESS
+- NOT_SPECIFIED
+- PRIOR_DATA_NOT_AVAILABLE
+- POTENTIAL_COVERAGE_GAP
+- NOT_ASSESSABLE
+
+Status tersebut menjelaskan kondisi dataset dan proses, bukan kualitas produk.
+
+---
+
+## 5. METODOLOGI RISET DAN EVIDENCE MANAGEMENT
+
+### 5.1 Kategori sumber
+
+Sumber dapat berasal dari:
+
+- Dokumentasi resmi produsen, manual, datasheet, sertifikasi, dan kebijakan garansi.
+- Listing marketplace dan klaim penjual.
+- Review pembeli marketplace.
+- Forum, komunitas, Reddit, blog, dan media sosial.
+- Video demonstrasi atau pengalaman penggunaan.
+- Pengujian independen atau pengukuran yang metodologinya tersedia.
+- Sumber regulasi atau standar yang relevan.
+
+Sumber harus diberi tipe dan konteks. Klaim penjual tidak boleh dinaikkan menjadi fakta produsen. Testimoni pengguna tidak otomatis membuktikan performa umum.
+
+### 5.2 ID dan provenance
+
+Gunakan namespace yang konsisten:
+
+- Source ID AI Mode: SRC-AI-001
+- Evidence ID AI Mode: EV-AI-001
+- Source ID SidePanel: SRC-SP-001
+- Evidence ID SidePanel: EV-SP-001
+
+ID harus unik dalam ruang lingkup sistem. Jangan menggunakan dua pola ID berbeda untuk jenis sumber yang sama. Simpan URL atau referensi sumber, judul, platform, tanggal akses, tanggal publikasi jika diketahui, tipe sumber, dan catatan akses.
+
+Untuk review, pertahankan review_id, collection_id, product_id, source_page, source_position, capture_id, dan source_id sesuai informasi yang benar-benar tersedia. Jangan menebak relasi record-ke-capture jika tidak tercatat.
+
+### 5.3 Evidence register
+
+Setiap evidence minimal memiliki:
+
+- evidence_id
+- source_id
+- product_id dan/atau canonical_product_id jika relevan
+- variant_id atau status varian
+- evidence_type
+- claim_or_observation
+- verbatim_excerpt bila kutipan diperlukan
+- source_locator (URL, halaman, timestamp video, review_id, atau lokasi lain)
+- observed_at / accessed_at
+- source_date bila tersedia
+- verification_status
+- limitations
+- related_finding_ids
+
+Kutipan harus benar-benar berasal dari sumber, singkat, dan tidak boleh direkayasa atau digabung seolah-olah satu kutipan.
+
+### 5.4 Status verifikasi
+
+Gunakan status yang jelas, misalnya:
+
+- **MANUFACTURER_CONFIRMED:** didukung dokumen resmi produsen.
+- **INDEPENDENTLY_TESTED:** didukung pengujian independen dengan metode yang dapat ditinjau.
+- **MULTI_SOURCE_CORROBORATED:** didukung beberapa sumber independen yang konsisten.
+- **USER_REPORTED:** pengalaman atau laporan pengguna.
+- **SELLER_CLAIM:** klaim pada listing atau materi penjual.
+- **HYPOTHESIS:** dugaan yang masuk akal tetapi belum terverifikasi.
+- **CONFLICTING:** terdapat bukti yang saling bertentangan.
+- **UNVERIFIED:** belum ada dasar yang cukup.
+- **NOT_AVAILABLE:** informasi tidak ditemukan atau tidak dapat diakses.
+
+Status ini bukan ranking kualitas. Jangan menaikkan status hanya karena jumlah pengulangan klaim.
+
+### 5.5 Claim-to-evidence mapping
+
+Setiap finding yang ditampilkan sebagai fakta atau dasar rekomendasi harus mempunyai satu atau lebih evidence_ids. Temuan tanpa evidence harus ditampilkan sebagai pertanyaan terbuka, hipotesis, atau informasi yang belum tersedia—bukan fakta.
+
+Jika sumber bertentangan:
+1. Simpan kedua bukti.
+2. Jelaskan aspek yang bertentangan.
+3. Bandingkan otoritas, kedekatan sumber dengan produk, tanggal, varian, dan metode.
+4. Jangan menghapus bukti yang tidak mendukung narasi.
+5. Publikasikan konflik atau tahan klaim jika belum dapat diselesaikan.
+
+### 5.6 Kekuatan bukti dan confidence
+
+Jangan menggunakan angka confidence 0–100 atau skor pakar tanpa definisi, kalibrasi, dan pengujian. Untuk versi awal, gunakan label kualitatif seperti HIGH, MODERATE, LIMITED, atau INSUFFICIENT hanya jika kriteria operasionalnya ditetapkan.
+
+Minimal pertimbangkan:
+- otoritas sumber;
+- independensi sumber;
+- relevansi terhadap model/varian;
+- keterkinian;
+- metode pengamatan/pengujian;
+- konsistensi lintas sumber;
+- keterbatasan sampel.
+
+Banyak review yang menyalin pola kalimat atau berasal dari konteks yang sama tidak otomatis menjadi bukti independen.
+
+---
+
+## 6. NOTEBOOKLM — PROMPT SINTESIS TERKONTROL
+
+Gunakan prompt berikut setelah memasukkan sumber riset dan paket ekspor Skill 04 ke NotebookLM. Output adalah data sintesis untuk validasi, bukan publikasi otomatis.
+
+### 6.1 Master instruction
+
+    # ROLE
+    Anda adalah Evidence-Based Consumer Intelligence Analyst dan Structured Data Synthesizer.
+
+    # OBJECTIVE
+    Sintesis seluruh sumber yang tersedia untuk satu listing/produk. Hasil harus membantu keputusan pembelian secara seimbang, transparan, dan dapat ditelusuri.
+
+    # IDENTITY RULES
+    1. Ikuti product_id dari Product Manifest sebagai identitas listing.
+    2. Jangan menyamakan product_id dengan canonical_product_id.
+    3. Jangan membuat canonical_product_id tanpa bukti identitas lintas listing.
+    4. Jangan menggabungkan listing atau varian yang tidak terbukti sama.
+    5. Tandai konflik identitas dan hentikan klaim lintas sumber yang terdampak.
+
+    # EVIDENCE RULES
+    1. Jangan mengarang fakta, kutipan, angka, tanggal, URL, sumber, ID, atau hasil pengujian.
+    2. Setiap finding harus mencantumkan evidence_ids dan source_ids yang mendukungnya.
+    3. Bedakan fakta produsen, klaim penjual, pengalaman pengguna, hasil uji, dan hipotesis.
+    4. Pertahankan bukti yang bertentangan; jangan memilih hanya bukti yang mendukung satu kesimpulan.
+    5. Jika informasi tidak tersedia, isi status NOT_AVAILABLE dan jelaskan keterbatasannya.
+    6. Jangan menyatakan sampel review sebagai keseluruhan ulasan listing.
+    7. Jangan mengubah atau meringkas kutipan menjadi kutipan verbatim.
+
+    # ANALYSIS RULES
+    1. Pisahkan masalah produk dari pengiriman, layanan toko, dan kesalahan pemesanan.
+    2. Jelaskan manfaat dan risiko dengan konteks penggunaan.
+    3. Root cause hanya boleh disebut terkonfirmasi jika sumber yang layak memang mengonfirmasinya; selain itu beri label HYPOTHESIS.
+    4. Jangan membuat durability forecast bulan 1/bulan 3 tanpa data longitudinal atau uji yang mendukung.
+    5. Jangan menyebut produk "dilarang dibeli"; jelaskan buyer mismatch dan kondisi yang membuat produk kurang sesuai.
+    6. Solusi DIY hanya boleh disarankan jika ada dasar bukti, risiko, batas penerapan, dan catatan keselamatan.
+    7. Jangan menyatakan aksesori wajib dibeli jika hanya rekomendasi komersial.
+    8. Jangan membuat expert_score atau match_score tanpa metodologi yang disetujui.
+
+    # OUTPUT
+    Hasilkan satu objek JSON valid sesuai schema versi yang diminta.
+    Gunakan null atau array kosong jika tidak ada data, disertai status yang sesuai.
+    Jangan menambahkan data yang tidak tersedia dalam sumber.
+    Sertakan daftar konflik, keterbatasan, dan pertanyaan yang masih belum terjawab.
+    Output ini wajib melewati validasi otomatis dan pemeriksaan manusia sebelum dipublikasikan.
+
+### 6.2 Aturan penggunaan NotebookLM
+
+- Masukkan Product Manifest dan seluruh paket ekspor listing yang sama.
+- Masukkan sumber AI Mode dengan Source ID yang konsisten.
+- Jangan mencampur sumber dari listing lain tanpa pemetaan identitas yang eksplisit.
+- Minta NotebookLM mengembalikan Evidence ID/Source ID yang sudah diberikan; jangan biarkan model membuat referensi palsu.
+- Jika NotebookLM tidak dapat menghubungkan klaim dengan lokasi sumber, tandai sebagai NEEDS_SOURCE_MAPPING.
+- Simpan prompt version, model/tool context jika tersedia, waktu sintesis, dan daftar input.
+
+---
+
+## 7. MODEL DATA DAN SKEMA PERTUKARAN
+
+### 7.1 Entitas konseptual
+
+| Entitas | Fungsi | Relasi utama |
+|---|---|---|
+| Canonical Product | Identitas produk lintas listing yang telah diverifikasi | Dapat memiliki banyak Listing |
+| Listing | Satu listing marketplace | Memiliki banyak Snapshot dan Review Collection |
+| Listing Snapshot | Kondisi listing pada waktu pengambilan | Terhubung ke Manifest |
+| Variant | Varian yang dapat dibuktikan | Terikat ke listing/produk sesuai bukti |
+| Review Collection | Satu rangkaian pengambilan review | Memiliki banyak Review Record |
+| Review Record | Data review mentah | Terikat pada satu listing dan collection |
+| Source | Asal informasi | Memiliki banyak Evidence |
+| Evidence | Potongan bukti yang terlokalisasi | Mendukung atau membantah banyak Finding |
+| Finding | Kesimpulan/observasi terstruktur | Memiliki banyak Evidence |
+| Solution | Perawatan, workaround, atau solusi resmi | Terhubung ke Finding dan Evidence |
+| Research Run | Satu pelaksanaan riset/sintesis | Menyimpan versi prompt dan input |
+| Publication | Versi konten yang disetujui untuk publik | Mengacu pada temuan dan data versi tertentu |
+| Product Request | Permintaan riset dari pengguna | Memiliki status proses dan hasil |
+
+### 7.2 Relasi utama
+
+- Satu canonical product dapat terhubung ke banyak listing, tetapi hanya setelah verifikasi identitas.
+- Satu listing dapat memiliki banyak snapshot dan review collection.
+- Satu review record hanya boleh terikat pada listing yang benar-benar menjadi sumbernya.
+- Satu source dapat menghasilkan banyak evidence.
+- Satu finding dapat didukung atau dibantah oleh banyak evidence.
+- Satu evidence dapat terkait ke beberapa finding.
+- Satu publication harus menunjuk ke versi data dan riset yang digunakan.
+
+### 7.3 Skema JSON pertukaran — versi 1
+
+Skema berikut adalah kerangka konseptual untuk pertukaran data. Implementasi harus menambahkan validasi JSON Schema/Pydantic dan migrasi versi. Field yang belum diketahui harus tetap null atau berstatus belum tersedia, bukan diisi contoh seolah data nyata.
+
+    {
+      "schema_version": "1.0",
+      "research_key": "RESEARCH_KEY_FROM_WORKFLOW",
+      "product_identity": {
+        "product_id": "SHOPEE_LISTING_ID",
+        "canonical_product_id": null,
+        "canonical_identity_status": "NOT_VERIFIED",
+        "product_name": "LISTING_PRODUCT_NAME",
+        "brand": null,
+        "model": null,
+        "variant_id": null,
+        "product_url": "SOURCE_LISTING_URL"
+      },
+      "listing_snapshot": {
+        "collection_date": null,
+        "shop_name": null,
+        "category": null,
+        "displayed_price": null,
+        "displayed_rating": null,
+        "displayed_review_count": null,
+        "displayed_sold_count": null,
+        "seller_claims": [],
+        "listing_specifications": [],
+        "source_manifest_file": null
+      },
+      "research_metadata": {
+        "research_run_id": null,
+        "master_prompt_version": "4.0",
+        "sidepanel_skill_versions": [],
+        "synthesis_tool": "NotebookLM",
+        "synthesized_at": null,
+        "publication_status": "DRAFT"
+      },
+      "sources": [],
+      "evidence": [],
+      "findings": {
+        "product_utility": [],
+        "strengths": [],
+        "risks_and_limitations": [],
+        "buyer_fit": [],
+        "root_cause_assessments": [],
+        "verified_wins": []
+      },
+      "solutions": [],
+      "conflicts": [],
+      "open_questions": [],
+      "dataset_audit": {
+        "audit_status": "NOT_ASSESSED",
+        "export_readiness": "NOT_ASSESSED",
+        "coverage_status": "NOT_ASSESSED",
+        "limitations": []
+      },
+      "affiliate": {
+        "affiliate_url": null,
+        "disclosure_required": true
+      }
     }
-  }
-]
 
-```
+### 7.4 Struktur evidence minimal
 
-## 6. RANCANGAN DESAIN UI/UX WEB APP (GRADIO LAYOUT)
+    {
+      "evidence_id": "EV-AI-001",
+      "source_id": "SRC-AI-001",
+      "product_id": "SHOPEE_LISTING_ID_OR_NULL",
+      "variant_id": null,
+      "evidence_type": "MANUFACTURER_DOCUMENT",
+      "claim_or_observation": "Deskripsi singkat bukti yang benar-benar ditemukan",
+      "verbatim_excerpt": null,
+      "source_locator": "URL_OR_PAGE_OR_TIMESTAMP_OR_REVIEW_ID",
+      "accessed_at": null,
+      "source_date": null,
+      "verification_status": "UNVERIFIED",
+      "limitations": [],
+      "related_finding_ids": []
+    }
 
-Antarmuka Web App dirancang menggunakan kartu produk yang terstruktur (*The Yin & Yang Reality Check Layout*):
+### 7.5 Struktur finding minimal
 
-```
-+-----------------------------------------------------------------------------------+
-|  🔍 SEARCH BAR: [ Ketik nama produk atau masalah rumah tangga... ]               |
-+-----------------------------------------------------------------------------------+
-|  📊 MATCH SCORE: 94%  |  SKOR KEPAKARAN: 8.2/10                                   |
-|  PRODUK: Rak Dinding Kamar Mandi Tempel Alumunium Tanpa Bor                       |
-+-----------------------------------------------------------------------------------+
-|  🎯 MASALAH UTAMA YANG DITUNTASKAN (Core Problem Solver)                          |
-|  • Mengatasi kamar mandi sempit & berantakan tanpa merusak dinding keramik.      |
-|  ⚙️ EFISIENSI FUNGSIONAL (Product Utility)                                        |
-|  • Lubang drainase bawah mencegah sabun lembek & tempat berkembang biak bakteri.  |
-+-----------------------------------------------------------------------------------+
-|  💚 APA YANG BIKIN JATUH CINTA                 |  ⚠️ PRE-CHECKOUT REALITY CHECK   |
-|  • Desain estetis ala hotel modern.           |  • Rak rawan ambruk jika dipasang |
-|  • Material alumunium anti karat.             |    di dinding berpori/berminyak.  |
-|                                               |  • Akar Masalah: Kelembapan &     |
-|                                               |    kerak sabun di permukaan.      |
-+-----------------------------------------------------------------------------------+
-|  ⭐ KISAH SUKSES PEMBELI (Verified Win)                                            |
-|  "Awalnya was-was takut copot. Tapi pas ikutan tips bersihin pake alkohol dan     |
-|  didiemin 24 jam, kokoh banget gak geser sebulan lebih!"                          |
-+-----------------------------------------------------------------------------------+
-|  🛠️ TIPS PEMECAHAN MASALAH (Smart Workaround & Solution)                          |
-|  • Lap dinding dengan alkohol 70% & wajib diamkan 24 jam sebelum diberi beban.   |
-|  • Trik DIY: Tambahkan silikon sealant transparan jika dinding agak lembap.       |
-+-----------------------------------------------------------------------------------+
-|  📦 RECOMMENDED BUNDLE (Cross-Sell)                                               |
-|  • Disarankan beli bersama: Stiker Heavy Duty 3M + Alkohol Medis 70%              |
-+-----------------------------------------------------------------------------------+
-|  [ 🛑 Batalkan & Cari Lain ]     [ 🛒 Amankan Solusi Ini via Shopee 🚀 ]          |
-+-----------------------------------------------------------------------------------+
-|  💌 REQUEST REVIEW: [ Tempel Link Shopee Produk Incaran Anda ] -> [ Kirim ]      |
-+-----------------------------------------------------------------------------------+
+    {
+      "finding_id": "FND-001",
+      "finding_type": "PRODUCT_RISK",
+      "statement": "Pernyataan yang proporsional dan spesifik",
+      "status": "USER_REPORTED",
+      "evidence_ids": ["EV-SP-001"],
+      "counter_evidence_ids": [],
+      "scope": {
+        "product_id": "SHOPEE_LISTING_ID",
+        "variant_id": null,
+        "usage_conditions": []
+      },
+      "limitations": [],
+      "publication_status": "DRAFT"
+    }
 
-```
+### 7.6 Tipe solusi
 
-## 7. STRATEGI RETENSI & PEMICU TRAFIK BERULANG (TRAFFIC LOOP)
+Setiap solusi harus menggunakan kategori:
 
-Untuk memastikan Web App tidak hanya dikunjungi sekali, 3 fitur pengikat disuntikkan ke dalam aplikasi:
+- OFFICIAL_MAINTENANCE: petunjuk perawatan/pemasangan dari produsen.
+- OFFICIAL_REPAIR: prosedur perbaikan resmi.
+- USER_WORKAROUND: cara yang dilaporkan pengguna; bukan otomatis rekomendasi.
+- DIY_FIX: tindakan mandiri yang telah ditinjau bukti dan risikonya.
+- PROFESSIONAL_SERVICE: membutuhkan teknisi/profesional.
+- NO_SAFE_SOLUTION_KNOWN: belum ada solusi aman yang dapat direkomendasikan.
 
-1. **Request Product Review Box (Pemicu Kembali):**
+Field solusi minimal: solution_id, solution_type, problem_addressed, recommended_action, evidence_ids, source_type, verification_status, safety_notes, applicability_conditions, limitations, and publication_status.
 
-   * Pengguna dapat menempelkan URL produk Shopee yang ingin mereka ketahui risiko dan kegunaannya.
+---
 
-   * *Efek Retensi:* Pengguna akan kembali ke Web App 1-2 hari kemudian untuk mengecek apakah riset produk mereka sudah diproses oleh AI.
+## 8. VALIDASI, MODERASI, DAN GATE PUBLIKASI
 
-2. **Shareable Reality Check Card (Pemicu Viral Organik):**
+Tidak ada hasil sintesis yang otomatis tampil ke publik.
 
-   * Tombol *\[ Copy Summary for WhatsApp \]* yang merangkum hasil *Reality Check*, kelebihan, dan solusi ke dalam format teks rapi.
+### 8.1 Validasi otomatis
 
-   * *Efek Trafik:* Pengguna membagikan peringatan ini ke grup keluarga/teman atau kolom komentar TikTok untuk menyelamatkan orang lain dari barang *zonk*.
+Sebelum publikasi, sistem memeriksa:
 
-3. **Interactive Buyer Quiz (Kuis Saring Kebutuhan):**
+1. Validitas JSON dan schema_version.
+2. Kesesuaian product_id dengan Product Manifest.
+3. Status canonical identity dan pemetaan varian.
+4. Keberadaan setiap source_id dan evidence_id yang dirujuk.
+5. Tidak ada finding faktual tanpa evidence.
+6. Kutipan memiliki sumber dan locator.
+7. Status audit dan export readiness tidak saling disamakan.
+8. Tidak ada review dari listing lain yang tercampur.
+9. Tidak ada field wajib yang diisi dengan placeholder seolah fakta.
+10. Affiliate URL dan URL sumber lolos validasi format serta kebijakan keamanan.
+11. Solusi DIY memiliki safety_notes dan kondisi penerapan.
+12. Tidak ada klaim kuantitatif yang tidak memiliki metode/sumber.
 
-   * Kuis interaktif 3 pertanyaan di halaman utama (Kategori $\rightarrow$ Budget $\rightarrow$ Kondisi Rumah) untuk memberikan rekomendasi produk paling tepat secara instan.
+### 8.2 Pemeriksaan manusia
 
-## 8. ROADMAP IMPLEMENTASI EKSEKUSI
+Admin/editor harus meninjau:
+- konflik identitas dan varian;
+- klaim risiko tinggi atau keselamatan;
+- root cause dan klaim ketahanan;
+- rekomendasi DIY;
+- kutipan dan konteks sumber;
+- buyer mismatch;
+- rekomendasi bundle;
+- disclosure afiliasi;
+- bahasa yang terlalu absolut atau menyesatkan.
 
-* \[x\] **Fase 1:** Finalisasi Dokumentasi Arsitektur & Master Prompt 3.0.
+### 8.3 Status publikasi
 
-* \[ \] **Fase 2:** Riset 5-10 Produk Perdana menggunakan Google AI Mode + Chrome Side Panel.
+- DRAFT
+- VALIDATION_FAILED
+- NEEDS_HUMAN_REVIEW
+- APPROVED
+- PUBLISHED
+- ARCHIVED
 
-* \[ \] **Fase 3:** Sintesis Data via NotebookLM & Penyusunan File `reality_check_db.json`.
+Setiap perubahan konten publik membuat publication version baru. Simpan siapa/apa yang menyetujui, waktu persetujuan, versi dataset, dan versi prompt yang digunakan.
 
-* \[ \] **Fase 4:** Pembuatan Kode Python Gradio (`app.py`) & Pengujian UI/UX Lokal.
+---
 
-* \[ \] **Fase 5:** Deployment ke Hugging Face Spaces & Pengujian Link Afiliasi Shopee.
+## 9. DESAIN UI/UX WEB APP
+
+### 9.1 Halaman utama
+
+Komponen:
+- Search bar berdasarkan nama, kategori, brand, model, atau masalah pengguna.
+- Kategori produk dan kebutuhan.
+- Buyer Quiz opsional.
+- Product Request Box.
+- Informasi cara kerja, batas data, dan disclosure afiliasi.
+
+### 9.2 Halaman Product Reality Check
+
+Urutan tampilan yang disarankan:
+
+1. **Identitas produk:** nama listing, merek/model jika terverifikasi, varian, toko, dan tautan listing.
+2. **Research status:** tanggal pembaruan, status identitas, status audit dataset, dan cakupan sampel.
+3. **Ringkasan keputusan:** cocok, cocok dengan syarat, kurang cocok, atau bukti belum cukup. Keputusan harus diturunkan dari aturan yang transparan, bukan skor arbitrer.
+4. **Masalah yang dapat dibantu:** kebutuhan dan kondisi penggunaan yang relevan.
+5. **Manfaat yang didukung bukti:** setiap manfaat dapat dibuka untuk melihat sumber.
+6. **Reality Check:** risiko, keluhan, keterbatasan, dan konteks frekuensinya tanpa menggeneralisasi sampel kecil.
+7. **Root cause:** pisahkan terkonfirmasi, hipotesis, dan belum diketahui.
+8. **Buyer fit / mismatch:** siapa yang mungkin cocok dan kondisi yang membuat produk kurang sesuai.
+9. **Solutions & maintenance:** pisahkan petunjuk resmi, workaround pengguna, DIY yang ditinjau, dan kebutuhan profesional.
+10. **Evidence drawer:** sumber, kutipan singkat, tanggal, locator, status verifikasi, dan keterbatasan.
+11. **Related products / bundle:** hanya jika relevansi fungsional terbukti dan hubungan komersial diungkapkan.
+12. **Affiliate CTA:** tombol pembelian dengan disclosure yang jelas.
+
+### 9.3 Jangan tampilkan tanpa metodologi
+
+- Expert Score 8.2/10.
+- Match Score 94%.
+- Persentase risiko atau durability prediction.
+- Estimasi usia pakai bulan 1/bulan 3.
+- Klaim "anti karat", "waterproof", "aman", "pasti awet", atau "wajib beli" yang hanya bersumber dari seller claim.
+- Ringkasan jumlah review yang seolah mewakili semua pembeli jika dataset hanya sampel.
+
+### 9.4 Bahasa dan visualisasi
+
+Gunakan bahasa Indonesia yang mudah dipahami. Label teknis dapat disertai penjelasan singkat. Bedakan visual status bukti, bukan hanya warna positif/negatif. Hindari desain yang menakut-nakuti atau mendorong pembelian secara manipulatif.
+
+---
+
+## 10. FITUR UTAMA DAN TRAFFIC LOOP
+
+### 10.1 Product Request Queue
+
+Pengguna dapat mengirim URL listing Shopee untuk meminta riset.
+
+Alur:
+1. Validasi URL dan domain yang diizinkan.
+2. Normalisasi URL untuk mengidentifikasi listing.
+3. Cek apakah listing sudah ada atau sedang diproses.
+4. Tampilkan status antrean.
+5. Admin meninjau permintaan dan menentukan prioritas.
+6. Riset mengikuti pipeline SidePanel dan AI Mode.
+7. Setelah publikasi, pengguna dapat menemukan hasil melalui URL/ID produk.
+
+Status request:
+- RECEIVED
+- URL_INVALID
+- DUPLICATE
+- QUEUED
+- IN_RESEARCH
+- WAITING_FOR_DATA
+- IN_REVIEW
+- PUBLISHED
+- REJECTED
+- CANCELLED
+
+Jangan menjanjikan waktu penyelesaian tertentu jika kapasitas riset belum dapat dipastikan.
+
+### 10.2 Shareable Reality Check Card
+
+Sediakan tombol salin ringkasan yang memuat:
+- identitas produk/listing;
+- ringkasan manfaat;
+- risiko utama;
+- siapa yang cocok/tidak cocok;
+- status keterbatasan bukti;
+- tautan halaman sumber.
+
+Jangan menghilangkan caveat atau status bukti ketika membuat ringkasan shareable.
+
+### 10.3 Interactive Buyer Quiz
+
+Kuis dapat menanyakan:
+- kategori/kebutuhan;
+- rentang anggaran;
+- kondisi penggunaan;
+- batasan penting pengguna.
+
+Rekomendasi harus menjelaskan alasan dan bukti. Jangan menyebut hasil kuis sebagai jaminan kecocokan.
+
+### 10.4 Related products dan bundle
+
+Cross-sell hanya ditampilkan jika:
+- fungsi pelengkapnya jelas;
+- kompatibilitas didukung sumber;
+- tidak ada klaim "wajib" tanpa dasar;
+- potensi konflik kepentingan diungkapkan;
+- rekomendasi tidak dipengaruhi besaran komisi.
+
+---
+
+## 11. MONETISASI DAN TRANSPARANSI AFILIASI
+
+1. Beri disclosure yang mudah ditemukan bahwa sebagian tautan dapat menghasilkan komisi.
+2. Disclosure harus muncul dekat CTA atau rekomendasi komersial, bukan hanya di halaman terpisah.
+3. Komisi tidak boleh memengaruhi kesimpulan, status buyer fit, urutan hasil, atau penilaian risiko.
+4. Jika produk tidak cocok atau bukti belum cukup, aplikasi harus berani menyatakan demikian.
+5. Tautan afiliasi harus dipisahkan dari URL sumber riset.
+6. Simpan affiliate_url secara terpisah dari product_url asli.
+7. Jangan membuat klaim diskon, harga, stok, atau ketersediaan tanpa data terbaru.
+
+---
+
+## 12. KEAMANAN, PRIVASI, DAN OPERASIONAL
+
+### 12.1 URL dan request safety
+
+- Batasi URL request pada domain marketplace yang diizinkan.
+- Tolak skema selain HTTPS bila tidak diperlukan.
+- Jangan melakukan arbitrary server-side fetch terhadap URL kiriman pengguna.
+- Cegah SSRF, redirect ke alamat privat, dan akses metadata/cloud internal.
+- Jangan mengeksekusi konten atau file yang diunggah pengguna.
+- Batasi ukuran input, frekuensi request, dan panjang teks.
+- Validasi URL afiliasi dan URL eksternal sebelum ditampilkan.
+
+### 12.2 Secret dan akses
+
+- API key, token, dan credential disimpan di environment secrets, bukan di source code atau database publik.
+- Pisahkan peran admin/editor dan pengguna publik.
+- Terapkan autentikasi untuk dashboard administrasi.
+- Jangan menyimpan data pribadi reviewer atau data pengguna yang tidak diperlukan.
+- Sediakan backup, logging, dan prosedur pemulihan.
+
+### 12.3 Audit trail
+
+Catat:
+- perubahan schema;
+- import/export data;
+- perubahan identity mapping;
+- perubahan evidence/finding;
+- hasil validasi;
+- persetujuan publikasi;
+- perubahan affiliate link;
+- waktu dan versi proses.
+
+Log tidak boleh menyimpan credential atau data pribadi yang tidak diperlukan.
+
+---
+
+## 13. ARSITEKTUR TEKNIS DAN DEPLOYMENT
+
+### 13.1 Tahap prototipe
+
+- Python untuk backend dan validasi.
+- Gradio untuk UI prototipe.
+- Pydantic atau JSON Schema untuk validasi payload.
+- JSON versioned dapat digunakan sebagai penyimpanan awal dengan backup dan validasi ketat.
+- Hugging Face Spaces dapat digunakan untuk demo setelah secrets dan akses admin ditangani dengan benar.
+
+### 13.2 Tahap pertumbuhan
+
+Saat data dan pengguna bertambah, migrasikan ke PostgreSQL atau database relasional setara. Simpan file mentah di object/file storage dan simpan metadata serta relasi di database.
+
+Struktur modul yang disarankan:
+- ingestion
+- identity_resolution
+- review_data
+- source_registry
+- evidence_registry
+- synthesis
+- validation
+- publication
+- product_search
+- request_queue
+- affiliate
+- admin
+- audit_log
+
+### 13.3 Prinsip implementasi
+
+- UI tidak boleh menjadi tempat logika validasi utama.
+- Validasi harus berada di backend dan dapat diuji.
+- Simpan schema_version dan prompt/skill version pada setiap research run.
+- Sediakan migration script untuk perubahan schema.
+- Hindari satu file JSON besar yang ditulis bersamaan oleh banyak proses.
+- Pisahkan data draft dari data published.
+- Sediakan endpoint/service internal yang konsisten sebelum memperluas UI.
+
+---
+
+## 14. ROADMAP IMPLEMENTASI
+
+### Fase 1 — Kontrak dan fondasi data
+- [ ] Tetapkan schema_version dan data dictionary.
+- [ ] Finalisasi pemetaan Product Manifest v2.0.
+- [ ] Tetapkan kontrak CSV review yang tidak berubah.
+- [ ] Tetapkan Source/Evidence ID dan claim-to-evidence mapping.
+- [ ] Tetapkan identity resolution dan aturan varian.
+
+### Fase 2 — Pipeline riset
+- [ ] Gunakan Master Prompt 4.0.
+- [ ] Jalankan SidePanel Skill 01–04.
+- [ ] Simpan raw export dan audit report.
+- [ ] Finalisasi prompt NotebookLM sesuai kontrak schema.
+- [ ] Uji konflik identitas, bukti kosong, bukti bertentangan, dan dataset parsial.
+
+### Fase 3 — Backend dan validasi
+- [ ] Implementasi model Pydantic/JSON Schema.
+- [ ] Implementasi import dan validasi Product Manifest/CSV/export package.
+- [ ] Implementasi source/evidence/finding registry.
+- [ ] Implementasi publication gate dan versioning.
+- [ ] Implementasi request queue dan audit log.
+
+### Fase 4 — UI Gradio
+- [ ] Search dan halaman detail produk.
+- [ ] Evidence drawer dan status bukti.
+- [ ] Reality Check dan buyer fit.
+- [ ] Solution & safety notes.
+- [ ] Product Request Queue.
+- [ ] Shareable Reality Check Card.
+- [ ] Buyer Quiz.
+- [ ] Affiliate disclosure dan CTA.
+
+### Fase 5 — QA dan deployment
+- [ ] Uji schema, identity, provenance, evidence links, dan migration.
+- [ ] Uji input berbahaya, URL tidak valid, rate limit, dan secrets.
+- [ ] Uji tampilan pada mobile dan desktop.
+- [ ] Uji semua klaim publik terhadap evidence.
+- [ ] Backup dan recovery test.
+- [ ] Deploy prototipe dan monitor error.
+
+### Fase 6 — Scale dan monetisasi
+- [ ] Evaluasi migrasi PostgreSQL.
+- [ ] Tambahkan pencarian terindeks.
+- [ ] Tambahkan workflow editorial dan multi-admin.
+- [ ] Tambahkan analytics yang menghormati privasi.
+- [ ] Evaluasi affiliate conversion tanpa mengubah independensi rekomendasi.
+
+---
+
+## 15. ACCEPTANCE CRITERIA / DEFINISI SELESAI
+
+Versi awal Web App belum dianggap siap publik sebelum seluruh kriteria kritis berikut terpenuhi:
+
+1. Satu product_id hanya mewakili satu listing.
+2. canonical_product_id tidak dibuat otomatis dari kemiripan nama.
+3. Review dari listing berbeda tidak tercampur.
+4. Header CSV kanonis dipertahankan persis.
+5. Raw data dapat ditelusuri dan tidak ditimpa hasil sintesis.
+6. Setiap finding publik memiliki evidence_ids yang valid.
+7. Setiap evidence memiliki source_id dan locator yang dapat diperiksa.
+8. Konflik dan keterbatasan tidak disembunyikan.
+9. Audit dataset tidak dipresentasikan sebagai audit kualitas produk.
+10. Sampel review tidak diklaim sebagai seluruh populasi review.
+11. Root cause dibedakan antara terkonfirmasi dan hipotesis.
+12. Solusi DIY memiliki bukti, batas penerapan, dan catatan keselamatan.
+13. Tidak ada skor atau forecast tanpa metodologi yang terdokumentasi.
+14. Hanya konten APPROVED yang dapat dipublikasikan.
+15. Affiliate disclosure terlihat dan tautan afiliasi terpisah dari sumber.
+16. URL request divalidasi dan tidak memicu arbitrary server-side fetch.
+17. Perubahan schema dan konten memiliki versi serta audit trail.
+
+---
+
+## 16. KEPUTUSAN DESAIN YANG DIPERTAHANKAN DARI VERSI SEBELUMNYA
+
+Konsep berikut tetap dipertahankan karena masih relevan:
+- Pre-Checkout Reality Check.
+- Problem-Solving First dan Product Utility.
+- Keseimbangan manfaat dan risiko.
+- Verified Wins jika kutipan dan sumbernya benar-benar tersedia.
+- Maintenance, workaround, dan DIY dengan kontrol bukti serta keselamatan.
+- Bundle/Cross-Sell yang relevan dan transparan.
+- Product Request Box dan status antrean.
+- Shareable Reality Check Card.
+- Interactive Buyer Quiz.
+- Gradio sebagai jalur prototipe.
+
+Perubahan terpenting dari versi 4.0 adalah bahwa **bukti, identitas listing, provenance, audit dataset, dan validasi publikasi kini menjadi fondasi sistem**, bukan sekadar tambahan setelah sintesis. Dengan demikian, Web App tidak hanya menyajikan ringkasan AI, tetapi dapat menjelaskan dari mana setiap kesimpulan berasal, seberapa terbatas bukti yang tersedia, dan kapan sistem sebaiknya tidak memberikan rekomendasi.
