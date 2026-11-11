@@ -340,7 +340,7 @@ The current NotebookLM prompt defines the JSON object shape. Its top-level requi
 `schema_version`, `synthesis_prompt_version`, `research_metadata`, `product_identity`, `listing_snapshot`, `dataset_audit`, `sources`, `evidence`, `findings`, `solutions`, `recommendation`, `conflicts`, `open_questions`, `affiliate`.
 
 Rules:
-- `schema_version` is `1.0` for this contract.
+- `schema_version` is `1.1` for the NotebookLM output defined by Prompt v1.1. Canonical Data Contract document version remains `1.0`.
 - Source and evidence references must resolve.
 - Every finding and solution must cite at least one valid evidence item unless explicitly marked as an unresolved question or insufficient evidence.
 - Synthesis-generated IDs follow §3.5.
