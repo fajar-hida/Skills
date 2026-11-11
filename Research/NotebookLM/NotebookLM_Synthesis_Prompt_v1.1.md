@@ -1,6 +1,6 @@
-# NotebookLM Synthesis Prompt — Web App Schema v1.0
+# NotebookLM Synthesis Prompt — Web App Schema v1.1
 
-**Versi prompt:** 1.0  
+**Versi prompt:** 1.1  
 **Target:** Research/dokumentasi_rencana_web_app.md versi 5.0  
 **Bahasa:** Indonesia  
 **Output:** Satu objek JSON valid, tanpa Markdown fence dan tanpa teks di luar JSON.
